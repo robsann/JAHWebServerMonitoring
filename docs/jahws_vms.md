@@ -15,7 +15,7 @@ This guide outlines the installation and setup of Ubuntu 22.04 and Debian 12.5 o
 		3. [Step 3: Install Ubuntu Server](#step-3-install-ubuntu-server)
 		4. [Step 4: Final Adjustments](#step-4-final-adjustments)
 		5. [Step 5: Create a Snapshot](#step-5-create-a-snapshot)
-	2. [Debian CLI Manual Installation on VirtualBox](#22-debian-cli-manual-installation-on-virtualbox)
+	2. [Debian Manual Installation on VirtualBox](#22-debian-cli-manual-installation-on-virtualbox)
 		1. [Step 1: Create a New Virtual Machine (VM)](#step-1-create-a-new-virtual-machine-vm-1)
 		2. [Step 2: Fine Tune the VM](#step-2-fine-tune-the-vm-1)
 		3. [Step 3: Install Debian CLI](#step-3-install-debian-cli)
