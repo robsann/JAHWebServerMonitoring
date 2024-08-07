@@ -1166,7 +1166,7 @@ Docker Engine is an open source containerization technology for building and con
 ---------------------------------------------------------------------------------------------------
 
 
-## Install Admyral on Docker
+## Admyral Installation on Docker
 
 Admyral is an open-source Cybersecurity Automation & Investigation Assistant powered by AI.
 
@@ -1252,9 +1252,45 @@ Admyral is an open-source Cybersecurity Automation & Investigation Assistant pow
 6. Reference:
     - GitHub: https://github.com/Admyral-Security/admyral
     - How to contribute: https://github.com/Admyral-Security/admyral/blob/main/CONTRIBUTING.md
-
     - Cloud Version: https://admyral.dev/login
     - Discord: https://discord.gg/GqbJZT9Hbf
+
+### Wazuh integration with Admyral
+
+4. Configure **Wazuh** to connect to **Admyral**:
+    1. Open the `/var/ossec/etc/ossec.conf` file, then after the **global tag**, insert the **Shuffle integration tag**:
+        ```bash
+        $ sudo nano /var/ossec/etc/ossec.conf
+        ```
+        - Add the **Admyral integration tag**:
+        ```html
+        <ossec_config>
+          <global>
+            ...
+          </global>
+
+          <integration>
+            <name>admyral</name>
+            #<hook_url>http://shuffler.io/api/v1/hooks/<HOOK_ID> </hook_url>
+			<hook_url>http://192.168.57.3:5000/webhook/c3fd5de1-f115-43de-bec0-458547605805/069431c18ba55caebb3a8c90f4a4b6396ec575ccaa9a5d41ae5ed8ed8b28d31d </hook_url>
+            <level>3</level>            # send all level 3 alerts to shuffle
+            <rule_id>1</rule_id>   		# send alerts with rule_id 100002
+            <alert_format>jsaon</alert_format>
+          </integration>
+
+          <alerts>
+            ...
+		  </alerts>
+
+          ...
+		</ossec_config>
+        ```
+        - Make sure you leave a space between the `<HOOK_ID>` and the closing tag `</hook_url>`.
+    2. Restart the **wazuh-manager** and check its status:
+        ```bash
+        $ sudo systemctl restart wazuh-manager
+        $ systemctl status wazuh-manager
+        ```
 
 
 ---------------------------------------------------------------------------------------------------
