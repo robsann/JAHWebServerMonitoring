@@ -5,20 +5,11 @@ The Wazuh will be installed using the IP address (`172.16.57.2`) from the intern
 ## Outline
 
 1. [Wazuh Installation on Ubuntu Server](#wazuh-installation-on-ubuntu-server)
-    1. [Step 1: Installing the Wazuh indexer step by step](#step-1-installing-the-wazuh-indexer-step-by-step)
-    2. [Step 2: Install Wazuh server step by step](#step-2-install-wazuh-server-step-by-step)
-    3. [Step 3: Install Wazuh dashboard step by step](#step-3-install-wazuh-dashboard-step-by-step)
 2. [Suricata Installation on Ubuntu Server](#suricata-installation-on-ubuntu-server)
 3. [TheHive Installation on Ubuntu Server](#thehive-installation-on-ubuntu-server)
-    1. [Step 1: Dependencies](#step-1-dependencies)
-    2. [Step 2: Java Virtual Machine](#step-2-java-virtual-machine)
-    3. [Step 3: Apache Cassandra](#step-3-apache-cassandra)
-    4. [Step 4: Elasticsearch](#step-4-elasticsearch)
-    5. [Step 5: File storage](#step-5-file-storage)
-    6. [Step 6: TheHive](#step-6-thehive)
-    7. [Troubleshooting](#troubleshooting)
-4. [Wazuh Agent Installation on Debian](#wazuh-agent-installation-on-debian)
-5. [DVWA (Damn Vulnerable Web Application) Installation on Debian](#dvwa-damn-vulnerable-web-application-installation-on-debian)
+4. [Docker Installation on Ubuntu Server](#docker-installation-on-ubuntu-server)
+4. [Admyral Installation on Ubuntu Server using Docker](#admyral-installation-on-ubunu-server-using-docker)
+5. [DVWA Installation on Debian](#dvwa-installation-on-debian)
 
 ### Ideas to implement
 
@@ -31,9 +22,13 @@ Homelab tools diagram:
 
 ## Wazuh Installation on Ubuntu Server
 
-Here, we walk through the Wazuh installation on the Ubuntu Server. For reference, check [Wazuh documentation](https://documentation.wazuh.com/current/getting-started/index.html).
+Wazuh is a security monitoring platform that combines intrusion detection, log management, and security information and event management (SIEM) capabilities. It helps organizations detect and respond to security threats in real-time. Here, we walk through the Wazuh installation on the Ubuntu Server. For reference, check [Wazuh documentation](https://documentation.wazuh.com/current/getting-started/index.html).
 
-### Step 1: Installing the Wazuh indexer step by step
+<details>
+<summary>
+<h3>Step 1: Installing the Wazuh indexer step by step</h3>
+</summary>
+<span style="color:gray">
 
 Wazuh indexer is a highly scalable full-text search engine and offers advanced security, alerting, index management, deep performance analysis, and several other features. Here, we will install and configure the Wazuh indexer as a single-node cluster.
 
@@ -144,8 +139,14 @@ Wazuh indexer is a highly scalable full-text search engine and offers advanced s
         ```bash
         $ sudo curl -k -u admin:admin https://127.0.0.1:9200/_cat/nodes?v
         ```
+</span>
+</details>
 
-### Step 2: Install Wazuh server step by step
+<details>
+<summary>
+<h3>Step 2: Install Wazuh server step by step</h3>
+</summary>
+<span style="color:gray">
 
 The Wazuh server is a central component that includes the Wazuh manager and Filebeat. The Wazuh manager collects and analyzes data from the deployed Wazuh agents, and triggers alerts when threats of anomalies are detected. Filebeat securely forwards alerts and archived events to the Wazuh indexer.
 
@@ -240,8 +241,14 @@ The Wazuh server is a central component that includes the Wazuh manager and File
             ```bash
             $ sudo filebeat test output
             ```
+</span>
+</details>
 
-### Step 3: Install Wazuh dashboard step by step
+<details>
+<summary>
+<h3>Step 3: Install Wazuh dashboard step by step</h3>
+</summary>
+<span style="color:gray">
 
 The Wazuh dashboard is a web interface for mining and visualizing the Wazuh server alerts and archived events.
 
@@ -300,167 +307,151 @@ The Wazuh dashboard is a web interface for mining and visualizing the Wazuh serv
     - URL: `https://192.168.57.3` (Because of the `https` protocol, port `443` is automatically used)
     - Username: `admin`
     - Password: `admin`
+</span>
+</details>
 
-### Step 4: Create a Snapshot
+<details>
+<summary>
+<h3>Wazuh Agent: Installation on Kali Linux</h3>
+</summary>
+<span style="color:gray">
 
-On the VM top menu, go to **Machine** > **Take a Snapshot...**, enter the snapshot name and description, then click **OK**.
+1. Open the Wazuh dashboard on the browser by accessing `https://<server-ip>:443`.
+2. On the Wazuh homepage, click on **Add agent**.
+3. On the first step of Deploy new agent, select **DEB amd64** under LINUX.
+4. On Server address, enter the IP address of the server with Wazuh manager installed.
+5. On step four, copy the command and run it on the client machine. It should look similar to the one below:
+	```bash
+	$wget https://packages.wazuh.com/4.x/apt/pool/main/w/wazuh-agent/wazuh-agent_4.8.0-1_amd64.deb && sudo WAZUH_MANAGER='192.168.57.3' dpkg -i ./wazuh-agent_4.8.0-1_amd64.deb
+	```
+6. Enable and start the agent, then check its status:
+	```bash
+	$ sudo systemctl deamon-reload
+	$ sudo systemctl enable wazuh-agent
+	$ sudo systemctl start wazuh-agent
+	$ sudo systemctl status wazuh-agent
+	```
+</span>
+</details>
 
----------------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------------
+<details>
+<summary>
+<h3>Wazuh Agent: Installation on Debian</h3>
+</summary>
+<span style="color:gray">
 
+1. Open the Wazuh dashboard on the browser by accessing `https://<server-ip>:443`.
+2. On the Wazuh homepage, click on any legend label under AGENTS SUMMARY.
+3. Click on **Deploy new agent**.
+3. On the first step of Deploy new agent, select **DEB amd64** under LINUX.
+4. On Server address, enter the IP address of the server with Wazuh manager installed.
+5. On step four, copy the command and run it on the client machine. It should look similar to the one below:
+	```bash
+	$ wget https://packages.wazuh.com/4.x/apt/pool/main/w/wazuh-agent/wazuh-agent_4.8.0-1_amd64.deb && sudo WAZUH_MANAGER='192.168.57.3' dpkg -i ./wazuh-agent_4.8.0-1_amd64.deb
+	```
+6. Enable and start the agent, then check its status:
+	```bash
+	$ sudo systemctl deamon-reload
+	$ sudo systemctl enable wazuh-agent
+	$ sudo systemctl start wazuh-agent
+	$ sudo systemctl status wazuh-agent
+	```
+</span>
+</details>
 
-## Suricata Installation on Ubuntu Server
+<details>
+<summary>
+<h3>Troubleshooting: Wazuh-modulesd high CPU usage</h3>
+</summary>
+<span style="color:gray">
 
-1. Suricata installation:
-    1. First, install the dependency package, `jq` tool, and add the Suricata PPA repository to Apt:
-        ```bash
-        $ sudo apt install software-properties-common jq
-        $ sudo add-apt-repository ppa:oisf/suricata-stable
-        $ sudo apt update
-        ```
-    2. Then, install the latest stable Suricata:
-        ```bash
-        $ sudo apt install suricata
-        ```
-    3. Check Suricata version:
-        ```bash
-        $ sudo suricata --build-info
-        ```
-    4. Start Suricata service, enable it to start on-boot, and check its running status:
-        ```bash
-        $ sudo systemctl start suricata
-        $ sudo systemctl enable suricata
-        $ systemctl status suricata
-        ```
-2. Basic setup:
-    1. To configure Suricata open `suricata.yaml`:
-        ```bash
-        $ sudo nano /etc/suricata/suricata.yaml
-        ```
-        - Set the parameters below and save:
-        ```yaml
-        # Step 1: Inform Suricata about your network
-        vars:
-            # more specific is better for alert accuracy and performance
-            address-groups:
-                HOME_NET: "[192.168.57.0/24,10.0.2.0/24]"
-        ...
-        # Step 2: Select outputs to enable
-        # Configure the type of alert (and other) logging you would like.
-        outputs:
-          # Extensible Event Format (nicknamed EVE) event log in JSON format
-          - eve-log:
-              enabled: yes
-              filetype: regular
-              filename: eve.json
-              pcap-file: false
-              community-id: true
-              community-id-seed: 0
-        ...
-        # Step 3: configure common capture settings
-        # Linux high speed capture support
-        af-packet:
-            - interface: enp0s8
-              cluster-id: 99
-              cluster-type: cluster_flow
-              defrag: yes
-              use-mmap: yes
-              tpacket-v3: yes
+1. Disable the vulnerability detection feature
+	1. Open the Wazuh server configuration file:
+		```bash
+		$ sudo nano /var/ossec/etc/ossec.conf
+		```
+		- Set the \<enable\> tag to "no" on \<vulnerability-detection\>:
+		```html
+		<vulnerability-detection>
+    	  <enabled>no</enabled>
+    	  <index-status>yes</index-status>
+    	  <feed-update-interval>60m</feed-update-interval>
+  		</vulnerability-detection>
+		```
+</span>
+</details>
 
-            - interface: enp0s3
-              cluster-id: 98
-              cluster-type: cluster_flow
-              defrag: yes
-              use-mmap: yes
-              tpacket-v3: yes
-        ...
-        # Cross platform libcap capture support
-        pcap:
-          - interface: enp0s8
+<details>
+<summary>
+<h3>Troubleshooting: False positive from Docker Overlays</h3>
+</summary>
+<span style="color:gray">
 
-          - interface: enp0s3
-        ```
-    2. Restart Suricata:
-        ```bash
-        $ sudo systemctl restart suricata
-        ```
-3. Update Suricata Signatures/Rules:
-    1. Run the default mode which fetches the ET Open ruleset:
-        ```bash
-        $ sudo suricata-update
-        ```
-        - The rules are saved in the `/var/lib/suricata/rules/suricata.rules` file.
-        - Always after modify the Suricata config file `suricata.yaml`, restart the Suricata service and run the `suricata-update`.
-4. Running Suricata:
-    1. Check the Suricata log to make sure it is running:
-        ```bash
-        $ sudo tail /var/log/suricata/suricata.log
-        ```
-        - The last line should say **Engine started** at the end.
-    2. Check the `stats.log` file to see statistics:
-        ```bash
-        $ sudo tail -f /var/log/suricata/stats.log
-        ```
-        - By default it is updated every 8 seconds.
-5. Alerting:
-    1. Let's test the IDS functionality of Suricata with the signature with ID 2100498:
-        ```bash
-        alert ip any any -> any any (msg:"GPL ATTACK_RESPONSE id check returned root"; content:"uid=0|28|root|29|"; classtype:bad-unknown; sid:2100498; rev:7; metadata:created_at 2010_09_23, updated_at 2010_09_23;)
-        ```
-        - This will allert on any IP traffic that has the content within its payload.
-    2. Make sure Suricata service is running:
-        ```bash
-        systemctl status suricata
-        ```
-    3. Run the command below to see the updates to `fast.log`.
-        ```bash
-        $ sudo tail -f /var/log/suricata/fast.log
-        ```
-    4. In another terminal, run `curl` to trigger the rule:
-        ```bash
-        $ curl http://testmynids.org/uid/index.html
-        ```
-6. EVE Json:
-    1. Use `jq` to parse the JSON output:
-        1. Display the alerts:
-            ```bash
-            $ sudo tail -f /var/log/suricata/eve.json | jq 'select(.event_type=="alert")'
-            ```
-        2. Display the stats:
-            ```bash
-            $ sudo tail -f /var/log/suricata/eve.json | jq 'select(.event_type=="stats")|.stats.capture.kernel_packets'
-            $ sudo tail -f /var/log/suricata/eve.json | jq 'select(.event_type=="stats")'
-            ```
-7. Suricata files and directories:
-    1. Suricata configuration file: `/etc/suricata/suricata.yaml`
-    2. Suricata pre-defined rules: `/usr/share/suricata/rules`
-    3. Suricata default rule path: `/var/lib/suricata/rules`
-    5. Suricata log directory: `/var/log/suricata`
+Edit the agent configuration file to fix the problem:
 
-8. Suricata docummentaion:
-    1. Suricata User Guide:
-    	- [User Guide](https://docs.suricata.io/en/latest/index.html).
-        - [3.2. Binary packages](https://docs.suricata.io/en/latest/install.html#binary-packages)
-        - [5.1. Running as a User Other Than Root](https://docs.suricata.io/en/latest/security.html#running-as-a-user-other-than-root)
-        - [9.1. Rule Management with Suricata-Update](https://docs.suricata.io/en/latest/rule-management/suricata-update.html) on **Rule Management**.
-        - [12.6. Dropping Privileges After Startup](https://docs.suricata.io/en/latest/configuration/dropping-privileges.html) on **Configuration**.
-        - [17. Output](https://docs.suricata.io/en/latest/output/index.html)
-        - [24.1.3. OPTIONS](https://docs.suricata.io/en/latest/manpages/suricata.html#options) on **Man Pages** > **Suricata**.
-    3. Suricata-Update 1.3.3 documentation:
-    	- [Quick Start](https://suricata-update.readthedocs.io/en/latest/quickstart.html)
-    4. Github:
-    	- [Evebox](https://github.com/jasonish/evebox)
+1. If the Wazuh client has Docker installed:
+	1. Edit the shared config file on the client machine:
+		```bash
+		$ sudo nano /var/ossec/etc/shared/agent.conf
+		```
+		- Add the following lines in between the \<agent_config\> tag:
+		```html
+		<rootcheck>
+			<ignore>/var/lib/docker/overlay2</ignore>
+		</rootcheck>
+		```
+	2. Restart the Wazuh agent service:
+		```bash
+		$ sudo systemctl restart wazuh-agent.service
+		```
+2. If the Wazuh server has Docker installed:
+	1. Edit the shared config file on the server machine:
+		```bash
+		$ sudo nano /var/ossec/etc/ossec.conf
+		```
+		- Add the following lines in between the \<ignore\> tag within the \<rootcheck\> tag:
+		```html
+		<rootcheck>
+			...
+			<ignore>/var/lib/docker/overlay2</ignore>
+		</rootcheck>
+		```
+	2. Restart the Wazuh manager service:
+		```bash
+		$ sudo systemctl restart wazuh-manager.service
+		```
+3. Edit the template file for new agents on the Wazuh server:
+	1. Open the template file with the shared agent configuration for new agents:
+		```bash
+		$ sudo nano /var/ossec/etc/shared/default/agent.conf
+		```
+		- Add the following lines in between the \<agent_config\> tag:
+		```html
+		<rootcheck>
+			<ignore>/var/lib/docker/overlay2</ignore>
+		</rootcheck>
+		```
+	2. Restart the Wazuh server:
+		```bash
+		$ sudo systemctl restart wazuh-manager
+		```
+</span>
+</details>
 
 
----------------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------
 
 
 ## Wazuh Integrations
 
-### Suricata Integration with Wazuh
+Wazuh Integrations provide seamless connectivity between the Wazuh platform and third-party tools, allowing for enhanced security monitoring and threat detection capabilities. By integrating with various security solutions, Wazuh enables organizations to centralize their security operations and streamline incident response processes.
+
+
+<details>
+<summary>
+<h3>Suricata Integration with Wazuh</h3>
+</summary>
+<span style="color:gray">
 
 1. Open `ossec.conf` to configure the Wazuh manager:
     ```bash
@@ -495,9 +486,14 @@ On the VM top menu, go to **Machine** > **Take a Snapshot...**, enter the snapsh
 	1. Go to "Dashboards Management" > "Dashboards Management" on the left menu.
 	2. Click on "Index Patterns" under "Dashboards Management" on the left menu.
 	3. Click on "wazuh-alerts-*" under "Index patterns", then click on "Refresh field list" icon on the top right.
+</span>
+</details>
 
-
-### TheHive Integration with Wazuh
+<details>
+<summary>
+<h3>TheHive Integration with Wazuh</h3>
+</summary>
+<span style="color:gray">
 
 1. Install Python and PIP on the Wazuh server:
 	```bash
@@ -723,137 +719,281 @@ On the VM top menu, go to **Machine** > **Take a Snapshot...**, enter the snapsh
 	```bash
 	$ sudo systemctl restart wazuh-manager
 	```
+</span>
+</details>
+
+<details>
+<summary>
+<h3>Admyral integration with Wazuh</h3>
+</summary>
+<span style="color:gray">
+
+Configure **Wazuh** to connect to **Admyral**:
+
+1. Open the `/var/ossec/etc/ossec.conf` file, then after the **global tag**, insert the **Shuffle integration tag**:
+	```bash
+	$ sudo nano /var/ossec/etc/ossec.conf
+	```
+	- Add the **Admyral integration tag**:
+	```html
+	<ossec_config>
+		<global>
+		...
+		</global>
+
+		<integration>
+		<name>admyral</name>
+		#<hook_url>http://shuffler.io/api/v1/hooks/<HOOK_ID> </hook_url>
+		<hook_url>http://192.168.57.3:5000/webhook/c3fd5de1-f115-43de-bec0-458547605805/069431c18ba55caebb3a8c90f4a4b6396ec575ccaa9a5d41ae5ed8ed8b28d31d </hook_url>
+		<level>3</level>            # send all level 3 alerts to shuffle
+		<rule_id>1</rule_id>   		# send alerts with rule_id 100002
+		<alert_format>jsaon</alert_format>
+		</integration>
+
+		<alerts>
+		...
+		</alerts>
+
+		...
+	</ossec_config>
+	```
+	- Make sure you leave a space between the `<HOOK_ID>` and the closing tag `</hook_url>`.
+2. Restart the **wazuh-manager** and check its status:
+	```bash
+	$ sudo systemctl restart wazuh-manager
+	$ systemctl status wazuh-manager
+	```
+</span>
+</details>
 
 
 ---------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------
 
 
-## Wazuh Agent
+## Suricata Installation on Ubuntu Server
 
-### Wazuh Agent Installation on Kali Linux
+Suricata is an open-source intrusion detection and prevention system that provides real-time network security monitoring and threat detection capabilities. It is designed to protect networks from a wide range of cyber threats and attacks.
 
-1. Open the Wazuh dashboard on the browser by accessing `https://<server-ip>:443`.
-2. On the Wazuh homepage, click on **Add agent**.
-3. On the first step of Deploy new agent, select **DEB amd64** under LINUX.
-4. On Server address, enter the IP address of the server with Wazuh manager installed.
-5. On step four, copy the command and run it on the client machine. It should look similar to the one below:
+<details>
+<summary>
+<h3>1. Suricata installation</h3>
+</summary>
+<span style="color:gray">
+
+1. First, install the dependency package, `jq` tool, and add the Suricata PPA repository to Apt:
 	```bash
-	$wget https://packages.wazuh.com/4.x/apt/pool/main/w/wazuh-agent/wazuh-agent_4.8.0-1_amd64.deb && sudo WAZUH_MANAGER='192.168.57.3' dpkg -i ./wazuh-agent_4.8.0-1_amd64.deb
+	$ sudo apt install software-properties-common jq
+	$ sudo add-apt-repository ppa:oisf/suricata-stable
+	$ sudo apt update
 	```
-6. Enable and start the agent, then check its status:
+2. Then, install the latest stable Suricata:
 	```bash
-	$ sudo systemctl deamon-reload
-	$ sudo systemctl enable wazuh-agent
-	$ sudo systemctl start wazuh-agent
-	$ sudo systemctl status wazuh-agent
+	$ sudo apt install suricata
 	```
-
-### Wazuh Agent Installation on Debian
-
-1. Open the Wazuh dashboard on the browser by accessing `https://<server-ip>:443`.
-2. On the Wazuh homepage, click on any legend label under AGENTS SUMMARY.
-3. Click on **Deploy new agent**.
-3. On the first step of Deploy new agent, select **DEB amd64** under LINUX.
-4. On Server address, enter the IP address of the server with Wazuh manager installed.
-5. On step four, copy the command and run it on the client machine. It should look similar to the one below:
+3. Check Suricata version:
 	```bash
-	$ wget https://packages.wazuh.com/4.x/apt/pool/main/w/wazuh-agent/wazuh-agent_4.8.0-1_amd64.deb && sudo WAZUH_MANAGER='192.168.57.3' dpkg -i ./wazuh-agent_4.8.0-1_amd64.deb
+	$ sudo suricata --build-info
 	```
-6. Enable and start the agent, then check its status:
+4. Start Suricata service, enable it to start on-boot, and check its running status:
 	```bash
-	$ sudo systemctl deamon-reload
-	$ sudo systemctl enable wazuh-agent
-	$ sudo systemctl start wazuh-agent
-	$ sudo systemctl status wazuh-agent
+	$ sudo systemctl start suricata
+	$ sudo systemctl enable suricata
+	$ systemctl status suricata
 	```
+5. Suricata files and directories:
+    1. Suricata configuration file: `/etc/suricata/suricata.yaml`
+    2. Suricata pre-defined rules: `/usr/share/suricata/rules`
+    3. Suricata default rule path: `/var/lib/suricata/rules`
+    5. Suricata log directory: `/var/log/suricata`
+</span>
+</details>
 
-## Wazuh Troubleshooting
+<details>
+<summary>
+<h3>2. Basic setup</h3>
+</summary>
+<span style="color:gray">
 
-### Wazuh-modulesd high CPU usage:
+1. To configure Suricata open `suricata.yaml`:
+	```bash
+	$ sudo nano /etc/suricata/suricata.yaml
+	```
+	- Set the parameters below and save:
+	```yaml
+	# Step 1: Inform Suricata about your network
+	vars:
+		# more specific is better for alert accuracy and performance
+		address-groups:
+			HOME_NET: "[192.168.57.0/24,10.0.2.0/24]"
+	...
+	# Step 2: Select outputs to enable
+	# Configure the type of alert (and other) logging you would like.
+	outputs:
+		# Extensible Event Format (nicknamed EVE) event log in JSON format
+		- eve-log:
+			enabled: yes
+			filetype: regular
+			filename: eve.json
+			pcap-file: false
+			community-id: true
+			community-id-seed: 0
+	...
+	# Step 3: configure common capture settings
+	# Linux high speed capture support
+	af-packet:
+		- interface: enp0s8
+			cluster-id: 99
+			cluster-type: cluster_flow
+			defrag: yes
+			use-mmap: yes
+			tpacket-v3: yes
 
-1. Disable the vulnerability detection feature
-	1. Open the Wazuh server configuration file:
-		```bash
-		$ sudo nano /var/ossec/etc/ossec.conf
-		```
-		- Set the \<enable\> tag to "no" on \<vulnerability-detection\>:
-		```html
-		<vulnerability-detection>
-    	  <enabled>no</enabled>
-    	  <index-status>yes</index-status>
-    	  <feed-update-interval>60m</feed-update-interval>
-  		</vulnerability-detection>
-		```
+		- interface: enp0s3
+			cluster-id: 98
+			cluster-type: cluster_flow
+			defrag: yes
+			use-mmap: yes
+			tpacket-v3: yes
+	...
+	# Cross platform libcap capture support
+	pcap:
+		- interface: enp0s8
 
-### False positive from Docker Overlays, edit the agent configuration file:
+		- interface: enp0s3
+	```
+2. Restart Suricata:
+	```bash
+	$ sudo systemctl restart suricata
+	```
+</span>
+</details>
 
-1. If the Wazuh client has Docker installed:
-	1. Edit the shared config file on the client machine:
+<details>
+<summary>
+<h3>3. Update Suricata Signatures/Rules</h3>
+</summary>
+<span style="color:gray">
+
+1. Run the default mode which fetches the ET Open ruleset:
+	```bash
+	$ sudo suricata-update
+	```
+	- The rules are saved in the `/var/lib/suricata/rules/suricata.rules` file.
+	- Always after modify the Suricata config file `suricata.yaml`, restart the Suricata service and run the `suricata-update`.
+</span>
+</details>
+
+<details>
+<summary>
+<h3>4. Running Suricata</h3>
+</summary>
+<span style="color:gray">
+
+1. Check the Suricata log to make sure it is running:
+	```bash
+	$ sudo tail /var/log/suricata/suricata.log
+	```
+	- The last line should say **Engine started** at the end.
+2. Check the `stats.log` file to see statistics:
+	```bash
+	$ sudo tail -f /var/log/suricata/stats.log
+	```
+	- By default it is updated every 8 seconds.
+</span>
+</details>
+
+<details>
+<summary>
+<h3>5. Alerting</h3>
+</summary>
+<span style="color:gray">
+
+1. Let's test the IDS functionality of Suricata with the signature with ID 2100498:
+	```bash
+	alert ip any any -> any any (msg:"GPL ATTACK_RESPONSE id check returned root"; content:"uid=0|28|root|29|"; classtype:bad-unknown; sid:2100498; rev:7; metadata:created_at 2010_09_23, updated_at 2010_09_23;)
+	```
+	- This will allert on any IP traffic that has the content within its payload.
+2. Make sure Suricata service is running:
+	```bash
+	systemctl status suricata
+	```
+3. Run the command below to see the updates to `fast.log`.
+	```bash
+	$ sudo tail -f /var/log/suricata/fast.log
+	```
+4. In another terminal, run `curl` to trigger the rule:
+	```bash
+	$ curl http://testmynids.org/uid/index.html
+	```
+</span>
+</details>
+
+<details>
+<summary>
+<h3>6. EVE Json</h3>
+</summary>
+<span style="color:gray">
+
+1. Use `jq` to parse the JSON output:
+	1. Display the alerts:
 		```bash
-		$ sudo nano /var/ossec/etc/shared/agent.conf
+		$ sudo tail -f /var/log/suricata/eve.json | jq 'select(.event_type=="alert")'
 		```
-		- Add the following lines in between the \<agent_config\> tag:
-		```html
-		<rootcheck>
-			<ignore>/var/lib/docker/overlay2</ignore>
-		</rootcheck>
-		```
-	2. Restart the Wazuh agent service:
+	2. Display the stats:
 		```bash
-		$ sudo systemctl restart wazuh-agent.service
+		$ sudo tail -f /var/log/suricata/eve.json | jq 'select(.event_type=="stats")|.stats.capture.kernel_packets'
+		$ sudo tail -f /var/log/suricata/eve.json | jq 'select(.event_type=="stats")'
 		```
-2. If the Wazuh server has Docker installed:
-	1. Edit the shared config file on the server machine:
-		```bash
-		$ sudo nano /var/ossec/etc/ossec.conf
-		```
-		- Add the following lines in between the \<ignore\> tag within the \<rootcheck\> tag:
-		```html
-		<rootcheck>
-			...
-			<ignore>/var/lib/docker/overlay2</ignore>
-		</rootcheck>
-		```
-	2. Restart the Wazuh manager service:
-		```bash
-		$ sudo systemctl restart wazuh-manager.service
-		```
-3. Edit the template file for new agents on the Wazuh server:
-	1. Open the template file with the shared agent configuration for new agents:
-		```bash
-		$ sudo nano /var/ossec/etc/shared/default/agent.conf
-		```
-		- Add the following lines in between the \<agent_config\> tag:
-		```html
-		<rootcheck>
-			<ignore>/var/lib/docker/overlay2</ignore>
-		</rootcheck>
-		```
-	2. Restart the Wazuh server:
-		```bash
-		$ sudo systemctl restart wazuh-manager
-		```
+</span>
+</details>
+
+<details>
+<summary>
+<h3>7. Suricata docummentaion</h3>
+</summary>
+<span style="color:gray">
+
+1. Suricata User Guide:
+	- [User Guide](https://docs.suricata.io/en/latest/index.html).
+	- [3.2. Binary packages](https://docs.suricata.io/en/latest/install.html#binary-packages)
+	- [5.1. Running as a User Other Than Root](https://docs.suricata.io/en/latest/security.html#running-as-a-user-other-than-root)
+	- [9.1. Rule Management with Suricata-Update](https://docs.suricata.io/en/latest/rule-management/suricata-update.html) on **Rule Management**.
+	- [12.6. Dropping Privileges After Startup](https://docs.suricata.io/en/latest/configuration/dropping-privileges.html) on **Configuration**.
+	- [17. Output](https://docs.suricata.io/en/latest/output/index.html)
+	- [24.1.3. OPTIONS](https://docs.suricata.io/en/latest/manpages/suricata.html#options) on **Man Pages** > **Suricata**.
+3. Suricata-Update 1.3.3 documentation:
+	- [Quick Start](https://suricata-update.readthedocs.io/en/latest/quickstart.html)
+4. Github:
+	- [Evebox](https://github.com/jasonish/evebox)
+</span>
+</details>
 
 
----------------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------
 
 
 ## TheHive Installation on Ubuntu Server
 
-The installation described the standalone installation of an instance of TheHive, where everything is on the same server.
+TheHive is a collaborative security and incident response platform that enables organizations to manage and investigate security incidents efficiently. It provides a centralized hub for teams to coordinate and track their response efforts. The steps below describe the standalone installation of an instance of TheHive, where everything is on the same server.
 
-### Step 1: Dependencies
+<details>
+<summary>
+<h3>Step 1: Dependencies</h3>
+</summary>
+<span style="color:gray">
 
 1. Run the command below to install the dependencies if not already installed:
     ```bash
     $ sudo apt install wget gnupg apt-transport-https git ca-certificates ca-certificates-java curl  software-properties-common python3-pip lsb-core
     ```
+</span>
+</details>
 
-### Step 2: Java Virtual Machine
+<details>
+<summary>
+<h3>Step 2: Java Virtual Machine</h3>
+</summary>
+<span style="color:gray">
 
 Install Java Virtual Machine:
 
@@ -876,7 +1016,14 @@ Install Java Virtual Machine:
     ```bash
     $ java -version
     ```
-### Step 3: Apache Cassandra
+</span>
+</details>
+
+<details>
+<summary>
+<h3>Step 3: Apache Cassandra</h3>
+</summary>
+<span style="color:gray">
 
 Apache Cassandra is a scalable and highly available database.
 
@@ -938,8 +1085,14 @@ Apache Cassandra is a scalable and highly available database.
     - 9042/tcp (client)
     - 7199
     - 46315
+</span>
+</details>
 
-### Step 4: Elasticsearch
+<details>
+<summary>
+<h3>Step 4: Elasticsearch</h3>
+</summary>
+<span style="color:gray">
 
 Elasticsearch is a robust data indexing and search engine. It is used by TheHive to manage data indicies efficiently.
 
@@ -1009,8 +1162,14 @@ Elasticsearch is a robust data indexing and search engine. It is used by TheHive
 - By default, Elasticsearch listens on the following ports:
     - 9200 (http)
     - 9300
+</span>
+</details>
 
-### Step 5: File storage
+<details>
+<summary>
+<h3>Step 5: File storage</h3>
+</summary>
+<span style="color:gray">
 
 1. To store files on the local filesystem, start by choosing the dedicated folder (by default `/opt/thp/thehive/files`):
     ```bash
@@ -1022,8 +1181,14 @@ Elasticsearch is a robust data indexing and search engine. It is used by TheHive
     $ sudo chown -R thehive:thehive /opt/thp/thehive/files
     $ ls -lh /opt/thp/thehive/
     ```
+</span>
+</details>
 
-### Step 6: TheHive
+<details>
+<summary>
+<h3>Step 6: TheHive</h3>
+</summary>
+<span style="color:gray">
 
 TheHive is a scalable Security Incident Response Platform integrated with MISP (Malware Information Sharing Platform) for promptly investigating and addressing security incidents.
 
@@ -1088,8 +1253,14 @@ TheHive is a scalable Security Incident Response Platform integrated with MISP (
     $ sudo systemctl enable thehive
     $ systemctl status thehive
     ```
+</span>
+</details>
 
-### Final check
+<details>
+<summary>
+<h3>Status check</h3>
+</summary>
+<span style="color:gray">
 
 Check if Cassandra, Elasticsearch, and TheHive services are running:
 ```bash
@@ -1097,8 +1268,16 @@ $ systemctl status cassandra
 $ systemctl status elasricsearch
 $ systemctl status thehive
 ```
+**Note:** Any modification on the configuration file of Cassandra, Elasticsearch, or TheHive should follow a reset of the three services with TheHive last.
 
-### Troubleshooting
+</span>
+</details>
+
+<details>
+<summary>
+<h3>Troubleshooting</h3>
+</summary>
+<span style="color:gray">
 
 1. Check possible issues reported in the Cassandra log file:
     ```bash
@@ -1112,20 +1291,23 @@ $ systemctl status thehive
     ```bash
     $ sudo cat /var/log/thehive/applicatin.log | grep -E "ERROR|Caused"
     ```
-- **Note:** Any modification on the configuration file of Cassandra, Elasticsearch, or TheHive should follow a reset of the three services with TheHive last.
+</span>
+</details>
 
 
----------------------------------------------------------------------------------------------------
-
-
-## TheHive Create User Account
+<details>
+<summary>
+<h3>TheHive Create User Account</h3>
+</summary>
+<span style="color:gray">
 
 1. Sign in into TheHive:
 
+</span>
+</details>
 
 
----------------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------------
+
 ---------------------------------------------------------------------------------------------------
 
 
@@ -1133,7 +1315,11 @@ $ systemctl status thehive
 
 Docker Engine is an open source containerization technology for building and containerizing applications, which acts as a client-server application.
 
-### Installation
+<details>
+<summary>
+<h3>Installation</h3>
+</summary>
+<span style="color:gray">
 
 1. Install dependencies:
 	```bash
@@ -1162,15 +1348,21 @@ Docker Engine is an open source containerization technology for building and con
 	```bash
 	$ sudo docker run hello-world
 	```
+</span>
+</details>
 
 ---------------------------------------------------------------------------------------------------
 
 
-## Admyral Installation on Docker
+## Admyral Installation on Ubuntu Server using Docker
 
 Admyral is an open-source Cybersecurity Automation & Investigation Assistant powered by AI.
 
-### Installation
+<details>
+<summary>
+<h3>Installation</h3>
+</summary>
+<span style="color:gray">
 
 1. Clone the repository:
     ```bash
@@ -1210,22 +1402,14 @@ Admyral is an open-source Cybersecurity Automation & Investigation Assistant pow
                 test:
                     [
                         ...
-                        # Connection refused, localhost is translated to IPv6
-                        #"http://localhost:3000/health"
                         # Use IP address instead of domain name
                         "http://127.0.0.1:3000/health"
-                        #"http://192.168.57.3:3000/health"
                     ]
         studio:
             healthcheck:
                 test:
                     [
                         ...
-                        # Connection refused using localhost domain name and IP addresss
-                        #"require('http').get('http://localhost:3000/api/profile', (r) => {if (r.statuscode !== 200) throw new error(r.statuscode)})",
-                        #"require('http').get('http://127.0.0.1:3000/api/profile', (r) => {if (r.statuscode !== 200) throw new error(r.statuscode)})",
-                        # Use the container id stored in the environment variable HOSTNAME
-                        #"require('http').get('http://' + process.env.HOSTNAME + ':3000/api/profile', (r) => {if (r.statuscode !== 200) throw new error(r.statuscode)})"
                         '"require(''http'').get(''http://'' + process.env.HOSTNAME + '':3000/api/profile'', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"'
 					]
 				timeout: 15s
@@ -1233,8 +1417,6 @@ Admyral is an open-source Cybersecurity Automation & Investigation Assistant pow
 			healthcheck:
 					[
 						...
-						# Connection refused, localhost is translated to IPv6
-						#"http://localhost:5000/status",
 						# Use IP address instead of domain name
 						"http://127.0.0.1:5000/status"
 					]
@@ -1248,168 +1430,180 @@ Admyral is an open-source Cybersecurity Automation & Investigation Assistant pow
     ```bash
     $ sudo docker compose restart
     ```
+</span>
+</details>
 
-6. Reference:
-    - GitHub: https://github.com/Admyral-Security/admyral
-    - How to contribute: https://github.com/Admyral-Security/admyral/blob/main/CONTRIBUTING.md
-    - Cloud Version: https://admyral.dev/login
-    - Discord: https://discord.gg/GqbJZT9Hbf
+<details>
+<summary>
+<h3>References</h3>
+</summary>
+<span style="color:gray">
 
-### Wazuh integration with Admyral
-
-4. Configure **Wazuh** to connect to **Admyral**:
-    1. Open the `/var/ossec/etc/ossec.conf` file, then after the **global tag**, insert the **Shuffle integration tag**:
-        ```bash
-        $ sudo nano /var/ossec/etc/ossec.conf
-        ```
-        - Add the **Admyral integration tag**:
-        ```html
-        <ossec_config>
-          <global>
-            ...
-          </global>
-
-          <integration>
-            <name>admyral</name>
-            #<hook_url>http://shuffler.io/api/v1/hooks/<HOOK_ID> </hook_url>
-			<hook_url>http://192.168.57.3:5000/webhook/c3fd5de1-f115-43de-bec0-458547605805/069431c18ba55caebb3a8c90f4a4b6396ec575ccaa9a5d41ae5ed8ed8b28d31d </hook_url>
-            <level>3</level>            # send all level 3 alerts to shuffle
-            <rule_id>1</rule_id>   		# send alerts with rule_id 100002
-            <alert_format>jsaon</alert_format>
-          </integration>
-
-          <alerts>
-            ...
-		  </alerts>
-
-          ...
-		</ossec_config>
-        ```
-        - Make sure you leave a space between the `<HOOK_ID>` and the closing tag `</hook_url>`.
-    2. Restart the **wazuh-manager** and check its status:
-        ```bash
-        $ sudo systemctl restart wazuh-manager
-        $ systemctl status wazuh-manager
-        ```
+- GitHub: https://github.com/Admyral-Security/admyral
+- How to contribute: https://github.com/Admyral-Security/admyral/blob/main/CONTRIBUTING.md
+- Cloud Version: https://admyral.dev/login
+- Discord: https://discord.gg/GqbJZT9Hbf
+</span>
+</details>
 
 
 ---------------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------------
 
 
-## DVWA (Damn Vulnerable Web Application) Installation on Debian
+## DVWA Installation on Debian
 
-1. Download and configure DVWA:
-    1. Change your directory to `/var/www/html`:
-        ```bash
-        $ cd /var/www/html
-        ```
-    2. Clone the DVWA GitHub repository:
-        ```bash
-        $ sudo git clone https://github.com/digininja/DVWA
-        ```
-    3. Rename `DVWA` to `dvwa`:
-        ```bash
-        $ sudo mv DVWA dvwa
-        ```
-    4. Grant full permissions (read, write, execute) to all users for the DVWA directory and its contents:
-        ```bash
-        $ sudo chmod -R 777 dvwa/
-        ```
-    5. To set up the user and password required to access the databasase, change to the config directory:
-        ```bash
-        $ cd dvwa/config
-        ```
-    6. Create a copy of the original file containing the default configurations:
-        ```bash
-        $ sudo cp config.inc.php.dist config.inc.php
-        ```
-    7. Open the created file using a text editor:
-        ```bash
-        $ sudo nano config.inc.php
-        ```
-        - Set the server address, database name, username, and password as shown below, then save it:
-        ```bash
-        # If you are using MariaDB then you cannot use root, you must use create a dedicated DVWA user.
-        #   See README.md for more information on this.
-        $_DVWA = array();
-        $_DVWA[ 'db_server' ]   = '127.0.0.1';
-        $_DVWA[ 'db_database' ] = 'dvwa';
-        $_DVWA[ 'db_user' ]     = 'admin';
-        $_DVWA[ 'db_password' ] = 'password';
-        $_DVWA[ 'db_port']      = '3306';
-        ```
-2. Install and configure MySQL Server:
-    1. Run the command below to install the mysql-server:
-        ```bash
-        $ sudo apt install default-mysql-server
-        ```
-    2. Start the MySQL service and check if it is running with the commands below:
-        ```bash
-        $ sudo systemctl start mysql
-        $ sudo systemctl status mysql
-        ```
-    3. Login as root to the MySQL database using the command below:
-        ```bash
-        $ sudo mysql -u root -p
-        ```
-    4. Create a new user with the same credentials set in the DVWA configuration file earlier:
-        ```sql
-        MariaDB [(none)]> create user 'admin'@'127.0.0.1' identified by 'password';
-        ```
-    5. Grant this new user privilege over the dvwa database with the command below:
-        ```sql
-        MariaDB [(none)]> grant all privileges on dvwa.* to 'admin'@'127.0.0.1' identified by 'password';
-        ```
-    6. Type `exit` to close the database.
-3. Install PHP and configure Apache Server
-    1. First, update the system and add the SURY PHP PPA repository running the commands below:
-        ```bash
-        $ sudo apt update
-        $ sudo apt -y install lsb-release apt-transport-https ca-certificates
-        $ sudo wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
-        $ echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/php.list
-        ```
-    2. Now, use the commands below to install PHP 7.4:
-        ```bash
-        $ sudo apt update
-        $ sudo apt install php7.4 -y
-        $ php -v
-        ```
-    3. To install additional PHP extensions, run the command below:
-        ```bash
-        $ sudo apt install php7.4-{cli,json,imap,bcmath,bz2,intl,gd,mbstring,mysql,zip}
-        ```
-    4. To configure the server, change the directory using the command below:
-        ```bash
-        $ cd /etc/php/7.4/apache2
-        ```
-    5. Open the `php.ini` file with a text editor:
-        ```bash
-        $ sudo nano php.ini
-        ```
-        - Search for the `allow_url_fopen` and `allow_url_include` and set them to `On`:
-        ```bash
-        ; Whether to allow the treatment of URLs (like http:// or ftp://) as files.
-        ; http://php.net/allow-url-fopen
-        allow_url_fopen = On
+DVWA (Damn Vulnerable Web Application) is a web application designed to help security professionals test their skills and tools in a legal environment. It contains various vulnerabilities for users to exploit and practice their penetration testing techniques.
 
-        ; Whether to allow include/require to open URLs (like http:// or ftp://) as files.
-        ; http://php.net/allow-url-include
-        allow_url_include = On
-        ```
-    6. Restart the Apache server and check its status using the commands below:
-        ```bash
-        $ sudo systemctl restart apache2
-        $ sudo systemctl status apache2
-        ```
-4. Access DVWA on your browser:
-    1. From the host machine, open your browser and enter the URL `http://192.168.57.4/dvwa/setup.php`.
-    2. Click on **Create / Reset Database** at the bottom, then you will be redirected to the login page.
-    3. At the login page, log in using the credentials created earlier, and everything should be up and running.
-5. Troubleshooting:
-    1. Look at the error log file:
-        ```bash
-        $ nano /var/log/apache2/error.log
-        ```
+
+<details>
+<summary>
+<h3>Step 1: Download and configure DVWA</h3>
+</summary>
+<span style="color:gray">
+
+1. Change your directory to `/var/www/html`:
+	```bash
+	$ cd /var/www/html
+	```
+2. Clone the DVWA GitHub repository:
+	```bash
+	$ sudo git clone https://github.com/digininja/DVWA
+	```
+3. Rename `DVWA` to `dvwa`:
+	```bash
+	$ sudo mv DVWA dvwa
+	```
+4. Grant full permissions (read, write, execute) to all users for the DVWA directory and its contents:
+	```bash
+	$ sudo chmod -R 777 dvwa/
+	```
+5. To set up the user and password required to access the databasase, change to the config directory:
+	```bash
+	$ cd dvwa/config
+	```
+6. Create a copy of the original file containing the default configurations:
+	```bash
+	$ sudo cp config.inc.php.dist config.inc.php
+	```
+7. Open the created file using a text editor:
+	```bash
+	$ sudo nano config.inc.php
+	```
+	- Set the server address, database name, username, and password as shown below, then save it:
+	```bash
+	# If you are using MariaDB then you cannot use root, you must use create a dedicated DVWA user.
+	#   See README.md for more information on this.
+	$_DVWA = array();
+	$_DVWA[ 'db_server' ]   = '127.0.0.1';
+	$_DVWA[ 'db_database' ] = 'dvwa';
+	$_DVWA[ 'db_user' ]     = 'admin';
+	$_DVWA[ 'db_password' ] = 'password';
+	$_DVWA[ 'db_port']      = '3306';
+	```
+</span>
+</details>
+
+<details>
+<summary>
+<h3>Step 2: Install and configure MySQL Server</h3>
+</summary>
+<span style="color:gray">
+
+1. Run the command below to install the mysql-server:
+	```bash
+	$ sudo apt install default-mysql-server
+	```
+2. Start the MySQL service and check if it is running with the commands below:
+	```bash
+	$ sudo systemctl start mysql
+	$ sudo systemctl status mysql
+	```
+3. Login as root to the MySQL database using the command below:
+	```bash
+	$ sudo mysql -u root -p
+	```
+4. Create a new user with the same credentials set in the DVWA configuration file earlier:
+	```sql
+	MariaDB [(none)]> create user 'admin'@'127.0.0.1' identified by 'password';
+	```
+5. Grant this new user privilege over the dvwa database with the command below:
+	```sql
+	MariaDB [(none)]> grant all privileges on dvwa.* to 'admin'@'127.0.0.1' identified by 'password';
+	```
+6. Type `exit` to close the database.
+</span>
+</details>
+
+<details>
+<summary>
+<h3>Step 3: Install PHP and configure Apache Server</h3>
+</summary>
+<span style="color:gray">
+
+1. First, update the system and add the SURY PHP PPA repository running the commands below:
+	```bash
+	$ sudo apt update
+	$ sudo apt -y install lsb-release apt-transport-https ca-certificates
+	$ sudo wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
+	$ echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/php.list
+	```
+2. Now, use the commands below to install PHP 7.4:
+	```bash
+	$ sudo apt update
+	$ sudo apt install php7.4 -y
+	$ php -v
+	```
+3. To install additional PHP extensions, run the command below:
+	```bash
+	$ sudo apt install php7.4-{cli,json,imap,bcmath,bz2,intl,gd,mbstring,mysql,zip}
+	```
+4. To configure the server, change the directory using the command below:
+	```bash
+	$ cd /etc/php/7.4/apache2
+	```
+5. Open the `php.ini` file with a text editor:
+	```bash
+	$ sudo nano php.ini
+	```
+	- Search for the `allow_url_fopen` and `allow_url_include` and set them to `On`:
+	```bash
+	; Whether to allow the treatment of URLs (like http:// or ftp://) as files.
+	; http://php.net/allow-url-fopen
+	allow_url_fopen = On
+
+	; Whether to allow include/require to open URLs (like http:// or ftp://) as files.
+	; http://php.net/allow-url-include
+	allow_url_include = On
+	```
+6. Restart the Apache server and check its status using the commands below:
+	```bash
+	$ sudo systemctl restart apache2
+	$ sudo systemctl status apache2
+	```
+</span>
+</details>
+
+<details>
+<summary>
+<h3>Step 4: Access DVWA on your browser</h3>
+</summary>
+<span style="color:gray">
+
+1. From the host machine, open your browser and enter the URL `http://192.168.57.4/dvwa/setup.php`.
+2. Click on **Create / Reset Database** at the bottom, then you will be redirected to the login page.
+3. At the login page, log in using the credentials created earlier, and everything should be up and running.
+</span>
+</details>
+
+<details>
+<summary>
+<h3>Troubleshooting</h3>
+</summary>
+<span style="color:gray">
+
+1. Look at the error log file:
+	```bash
+	$ nano /var/log/apache2/error.log
+	```
+</span>
+</details>

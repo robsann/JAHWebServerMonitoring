@@ -6,21 +6,9 @@ This guide outlines the installation and setup of Ubuntu 22.04 and Debian 12.5 o
 ## Outline
 
 1. [VirtualBox Setup](#1-virtualbox-setup)
-	1. [VirtualBox Installation](#11-virtualbox-installation)
-	2. [VirtualBox Host-Only Network Setup](#12-virtualbox-host-only-network-setup)
 2. [Virtual Machine Installation](#2-virtual-machine-installation)
 	1. [Ubuntu Server Manual Installation on VirtualBox](#21-ubuntu-server-manual-installation-on-virtualbox)
-		1. [Step 1: Create a New Virtual Machine (VM)](#step-1-create-a-new-virtual-machine-vm)
-		2. [Step 2: Fine Tune the VM](#step-2-fine-tune-the-vm)
-		3. [Step 3: Install Ubuntu Server](#step-3-install-ubuntu-server)
-		4. [Step 4: Final Adjustments](#step-4-final-adjustments)
-		5. [Step 5: Create a Snapshot](#step-5-create-a-snapshot)
 	2. [Debian Manual Installation on VirtualBox](#22-debian-cli-manual-installation-on-virtualbox)
-		1. [Step 1: Create a New Virtual Machine (VM)](#step-1-create-a-new-virtual-machine-vm-1)
-		2. [Step 2: Fine Tune the VM](#step-2-fine-tune-the-vm-1)
-		3. [Step 3: Install Debian CLI](#step-3-install-debian-cli)
-		4. [Step 4: Final Adjustments](#step-4-final-adjustments-1)
-		5. [Step 5: Create a Snapshot](#step-5-create-a-snapshot-1)
 <br><br>
 
 -----------------------------------------------------------------------------------------------------
@@ -29,17 +17,27 @@ This guide outlines the installation and setup of Ubuntu 22.04 and Debian 12.5 o
 
 This section provides instructions for installing VirtualBox and configuring the Host-only Network.
 
-## 1.1 VirtualBox Installation
+<details>
+	<summary>
+		<h2>1.1 VirtualBox Installation</h2>
+	</summary>
+	<span style="color:gray">
 
 To install the **Oracle VM VirtualBox Manager**, download the installation package from [here](https://www.virtualbox.org/wiki/Downloads), then install it according to your system.
 
 After installing the **VirtualBox Manager**, install the **Extension Pack** to expand the VirtualBox advanced features:
 
-1. Download the **Extension Pack** from [here](https://www.virtualbox.org/wiki/Downloads).
-2. Open the **VirtualBox Manager**, then click on the **Tools** menu and click **Extensions**.
-3. On **Extensions**, click **Install** and select the downloaded extension package file, then follow the instructions.
+1. Download the Extension Pack from [here](https://www.virtualbox.org/wiki/Downloads).
+2. Open the VirtualBox Manager, then click on the **Tools** menu and click **Extensions**.
+3. On Extensions, click Install and select the downloaded extension package file, then follow the instructions.
+	</span>
+</details>
 
-## 1.2 VirtualBox Host-Only Network Setup
+<details>
+	<summary>
+		<h2>1.2 VirtualBox Host-Only Network Setup</h2>
+	</summary>
+	<span style="color:gray">
 
 To create a **Host-only Network**, open **VirtualBox Manager**, go to the **Tools** menu, then click on **Network**. Select the **Host-only Networks** tab, click **Create** to create **vboxnet0**, and then click **Create** again to create **vboxnet1**. Let's configure the later one:
 
@@ -53,9 +51,12 @@ To create a **Host-only Network**, open **VirtualBox Manager**, go to the **Tool
     - **Server Mask:** 255.255.255.0
     - **Lower Address Bound:** 192.168.57.3
     - **Upper Address Bound:** 192.168.57.254
-<br><br>
+	</span>
+</details>
+
 
 -----------------------------------------------------------------------------------------------------
+
 
 # 2. Virtual Machine Installation
 
@@ -65,7 +66,11 @@ This section walks through the installation and configuration of Ubuntu Server 2
 
 Download the **Ubuntu Server 22.04.x LTS** disk image (ISO) from [here](https://cdimage.ubuntu.com/ubuntu-server/jammy/daily-live/current/), then follow the steps bellow.
 
-### Step 1: Create a New Virtual Machine (VM)
+<details>
+	<summary>
+		<h3>Step 1: Create a New Virtual Machine (VM)</h3>
+	</summary>
+	<span style="color:grey">
 
 Open **VirtualBox Manager** and click on **New**.
 1. On **Virtual machine Name and operating system**, set:
@@ -85,8 +90,15 @@ Open **VirtualBox Manager** and click on **New**.
     - Click **Next**.
 4. On **Summary**:
     - Review and click **Finish**.
+	</span>
+</details>
 
-### Step 2: Fine Tune the VM
+
+<details>
+	<summary>
+		<h3>Step 2: Fine Tune the VM</h3>
+	</summary>
+	<span style="color:grey">
 
 On **VirtualBox Manager**, select the created VM and click on **Settings**.
 1. On **General** > **Advanced**, set:
@@ -103,8 +115,14 @@ On **VirtualBox Manager**, select the created VM and click on **Settings**.
     - **Attached to:** Host-only Adapter
     - **Name:** vboxnet1
 5. Then click **OK** to finish.
+	</span>
+</details>
 
-### Step 3: Install Ubuntu Server
+<details>
+	<summary>
+		<h3>Step 3: Install Ubuntu Server</h3>
+	</summary>
+	<span style="color:grey">
 
 On **VirtualBox Manager**, click on **Sart**.
 1. Hit Enter on **Try or install Ubuntu Server**.
@@ -124,8 +142,14 @@ On **VirtualBox Manager**, click on **Sart**.
 14. On **Featured Server Snaps**, just hit Enter on **Done** and the installation will begin.
 14. On **Install complete!**, hit Enter on **Cancel update and reboot**. It will take some time to **reboot**.
 15. Remove the installation medium if needed on **Devices** > **Optical Drives**, then press **ENTER**.
+	</span>
+</details>
 
-### Step 4: Final Adjustments
+<details>
+	<summary>
+		<h3>Step 4: Final Adjustments</h3>
+	</summary>
+	<span style="color:grey">
 
 After rebooting **log in** with your credentials.
 
@@ -242,20 +266,32 @@ After rebooting **log in** with your credentials.
         	```bash
         	$ sudo shutdown -r now
         	```
+	</span>
+</details>
 
-
-### Step 5: Create a Snapshot
+<details>
+	<summary>
+		<h3>Step 5: Create a Snapshot</h3>
+	</summary>
+	<span style="color:grey">
 
 On the VM top menu, go to **Machine** > **Take a Snapshot...**, enter the snapshot name and description, then click **OK**.
-<br><br>
+	</span>
+</details>
+
 
 ----------------------------------------------------------------------------------------------------
+
 
 ## 2.2 Debian Manual Installation on VirtualBox
 
 Download the **Debian 12.x.x amd64** disk image (ISO) from [here](https://cdimage.debian.org/debian-cd/), then follow the steps below.
 
-### Step 1: Create a New Virtual Machine (VM)
+<details>
+	<summary>
+		<h3>Step 1: Create a New Virtual Machine (VM)</h3>
+	</summary>
+	<span style="color:grey">
 
 Open the **VirtualBox Manager**, then click on **New**.
 1. On **Virtual machine Name and operating system**, set:
@@ -275,8 +311,14 @@ Open the **VirtualBox Manager**, then click on **New**.
     - Click **Next**.
 4. On **Summary**:
     - Review and click **Finish**
+	</span>
+</details>
 
-### Step 2: Fine Tune the VM
+<details>
+	<summary>
+		<h3>Step 2: Fine Tune the VM</h3>
+	</summary>
+	<span style="color:grey">
 
 On **VirtualBox Manager**, click on **Settings**.
 1. On **General** > **Advanced**, set:
@@ -293,8 +335,14 @@ On **VirtualBox Manager**, click on **Settings**.
     - **Attached to:** Host-only Adapter
     - **Name:** vboxnet1
 5. Then click **OK** to finish.
+	</span>
+</details>
 
-### Step 3: Install Debian CLI
+<details>
+	<summary>
+		<h3>Step 3: Install Debian CLI</h3>
+	</summary>
+	<span style="color:grey">
 
 On **VirtualBox Manager**, click on **Sart**.
 1. When the Debian installer menu appears, select **Install** to start the installation process.
@@ -309,8 +357,14 @@ On **VirtualBox Manager**, click on **Sart**.
 12. On **Software selection** select only **web server**, **SSH server**, and **standard system utilities**, then hit Enter on **Continue**.
 13. On **Configuring grup-pc**, select **Yes** to install the GRUB boot loader, then select the `/dev/sda` device for the boot loader installation.
 14. On **Finish the installation**, hit **Continue** to finish the installation.
+	</span>
+</details>
 
-### Step 4: Final Adjustments
+<details>
+	<summary>
+		<h3>Step 4: Final Adjustments</h3>
+	</summary>
+	<span style="color:grey">
 
 After rebooting **log in** with your credentials.
 
@@ -447,7 +501,15 @@ After rebooting **log in** with your credentials.
         	```bash
         	$ sudo shutdown -r now
         	```
+	</span>
+</details>
 
-### Step 5: Create a Snapshot
+<details>
+	<summary>
+		<h3>Step 5: Create a Snapshot</h3>
+	</summary>
+	<span style="color:grey">
 
 On the VM top menu, go to **Machine** > **Take a Snapshot...**, enter the snapshot name and description, then click **OK**.
+	</span>
+</details>
