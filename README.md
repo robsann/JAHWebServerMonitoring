@@ -1,4 +1,4 @@
-# Just Another Homelab (JAH) - Web Server Monitoring
+# Just Another Homelab: Web Server Monitoring
 
 This homelab provides a virtual environment to practice with tools commonly used by Security Operations Center (SOC) teams to monitor, detect, manage, and investigate security incidents. The lab is specifically designed to monitor a Debian web server that is running vulnerable web servers. It utilizes security tools that are self-hosted on an Ubuntu Server to detect malicious activities that may be carried out using offensive tools in Kali Linux.
 
