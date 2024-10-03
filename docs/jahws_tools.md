@@ -24,11 +24,12 @@ Homelab tools diagram:
 
 Wazuh is a security monitoring platform that combines intrusion detection, log management, and security information and event management (SIEM) capabilities. It helps organizations detect and respond to security threats in real-time. Here, we walk through the Wazuh installation on the Ubuntu Server. For reference, check [Wazuh documentation](https://documentation.wazuh.com/current/getting-started/index.html).
 
+
+<!---------- Step 1: Installing the Wazuh indexer step by step ---------->
 <details>
 <summary>
 <h3>Step 1: Installing the Wazuh indexer step by step</h3>
 </summary>
-<span style="color:gray">
 
 Wazuh indexer is a highly scalable full-text search engine and offers advanced security, alerting, index management, deep performance analysis, and several other features. Here, we will install and configure the Wazuh indexer as a single-node cluster.
 
@@ -139,14 +140,15 @@ Wazuh indexer is a highly scalable full-text search engine and offers advanced s
         ```bash
         $ sudo curl -k -u admin:admin https://127.0.0.1:9200/_cat/nodes?v
         ```
-</span>
 </details>
 
+
+
+<!---------- Step 2: Install Wazuh server step by step ---------->
 <details>
 <summary>
 <h3>Step 2: Install Wazuh server step by step</h3>
 </summary>
-<span style="color:gray">
 
 The Wazuh server is a central component that includes the Wazuh manager and Filebeat. The Wazuh manager collects and analyzes data from the deployed Wazuh agents, and triggers alerts when threats of anomalies are detected. Filebeat securely forwards alerts and archived events to the Wazuh indexer.
 
@@ -241,14 +243,14 @@ The Wazuh server is a central component that includes the Wazuh manager and File
             ```bash
             $ sudo filebeat test output
             ```
-</span>
 </details>
 
+
+<!---------- Step 3: Install Wazuh dashboard step by step ---------->
 <details>
 <summary>
 <h3>Step 3: Install Wazuh dashboard step by step</h3>
 </summary>
-<span style="color:gray">
 
 The Wazuh dashboard is a web interface for mining and visualizing the Wazuh server alerts and archived events.
 
@@ -307,14 +309,15 @@ The Wazuh dashboard is a web interface for mining and visualizing the Wazuh serv
     - URL: `https://192.168.57.3` (Because of the `https` protocol, port `443` is automatically used)
     - Username: `admin`
     - Password: `admin`
-</span>
+
 </details>
 
+
+<!---------- Wazuh Agent: Installation on Kali Linux ---------->
 <details>
 <summary>
 <h3>Wazuh Agent: Installation on Kali Linux</h3>
 </summary>
-<span style="color:gray">
 
 1. Open the Wazuh dashboard on the browser by accessing `https://<server-ip>:443`.
 2. On the Wazuh homepage, click on **Add agent**.
@@ -331,14 +334,14 @@ The Wazuh dashboard is a web interface for mining and visualizing the Wazuh serv
 	$ sudo systemctl start wazuh-agent
 	$ sudo systemctl status wazuh-agent
 	```
-</span>
 </details>
 
+
+<!---------- Wazuh Agent: Installation on Debian ---------->
 <details>
 <summary>
 <h3>Wazuh Agent: Installation on Debian</h3>
 </summary>
-<span style="color:gray">
 
 1. Open the Wazuh dashboard on the browser by accessing `https://<server-ip>:443`.
 2. On the Wazuh homepage, click on any legend label under AGENTS SUMMARY.
@@ -356,14 +359,14 @@ The Wazuh dashboard is a web interface for mining and visualizing the Wazuh serv
 	$ sudo systemctl start wazuh-agent
 	$ sudo systemctl status wazuh-agent
 	```
-</span>
 </details>
 
+
+<!---------- Troubleshooting: Wazuh-modulesd high CPU usage ---------->
 <details>
 <summary>
 <h3>Troubleshooting: Wazuh-modulesd high CPU usage</h3>
 </summary>
-<span style="color:gray">
 
 1. Disable the vulnerability detection feature
 	1. Open the Wazuh server configuration file:
@@ -378,14 +381,14 @@ The Wazuh dashboard is a web interface for mining and visualizing the Wazuh serv
     	  <feed-update-interval>60m</feed-update-interval>
   		</vulnerability-detection>
 		```
-</span>
 </details>
 
+
+<!---------- Troubleshooting: False positive from Docker Overlays ---------->
 <details>
 <summary>
 <h3>Troubleshooting: False positive from Docker Overlays</h3>
 </summary>
-<span style="color:gray">
 
 Edit the agent configuration file to fix the problem:
 
@@ -435,7 +438,6 @@ Edit the agent configuration file to fix the problem:
 		```bash
 		$ sudo systemctl restart wazuh-manager
 		```
-</span>
 </details>
 
 
@@ -446,12 +448,21 @@ Edit the agent configuration file to fix the problem:
 
 Wazuh Integrations provide seamless connectivity between the Wazuh platform and third-party tools, allowing for enhanced security monitoring and threat detection capabilities. By integrating with various security solutions, Wazuh enables organizations to centralize their security operations and streamline incident response processes.
 
+### Refresh fields
 
+To refresh the field list, follow the instructions below:
+
+1. Go to "Dashboards Management" > "Dashboards Management" on the left menu.
+2. Click on "Index Patterns" under "Dashboards Management" on the left menu.
+3. Click on "wazuh-alerts-*" under "Index patterns", then click on the "Refresh field list" icon on the top right.
+
+
+
+<!---------- Suricata Integration with Wazuh ---------->
 <details>
 <summary>
 <h3>Suricata Integration with Wazuh</h3>
 </summary>
-<span style="color:gray">
 
 1. Open `ossec.conf` to configure the Wazuh manager:
     ```bash
@@ -480,35 +491,65 @@ Wazuh Integrations provide seamless connectivity between the Wazuh platform and 
     ```bash
     $ sudo systemctl restart wazuh-manager.service
     ```
-4. On the Wazuh dashboard, click on "Server management" on the left menu, then click on "Settings".
-5. On "Configuration", click on "Edit configuration" at the top-right and check if the Suricata log was added at the bottom of the file.
+4. On the Wazuh left menu, click on "Server management", then click on "Settings".
+5. On the "Configuration" page, click on "Edit configuration" at the top-right and check if the Suricata log was added at the bottom of the `ossec.conf` file.
 6. Refresh the field list:
 	1. Go to "Dashboards Management" > "Dashboards Management" on the left menu.
 	2. Click on "Index Patterns" under "Dashboards Management" on the left menu.
-	3. Click on "wazuh-alerts-*" under "Index patterns", then click on "Refresh field list" icon on the top right.
-</span>
+	3. Click on "wazuh-alerts-*" under "Index patterns", then click on the "Refresh field list" icon on the top right.
+
 </details>
 
+
+<!---------- TheHive Integration with Wazuh ---------->
 <details>
 <summary>
 <h3>TheHive Integration with Wazuh</h3>
 </summary>
-<span style="color:gray">
 
-1. Install Python and PIP on the Wazuh server:
+### Create User Account on TheHive
+
+1. On **Organisations**, click on the organization name.
+2. On the organisaton page, under **Users** click on the **plus sign** to add an user.
+	1. Fill the fields on **Adding a User**
+		- **Type:** Normal
+		- **Organisation:** JASHWS
+		- **Login:** admin@jah.com
+		- **Name:** Admin
+		- **Profile:** org-admin
+	2. Then, click **Confirm**.
+	3. To set the passowrd of the created **Admin** user, click on **Preview**:
+		1. Under **Password**, click on **Set a new password**.
+		2. Type the passowrd and click on **Confirm**.
+3. Create an user with the analyst profile to generate the API key. On the organisaton page, under **Users** click on the **plus sign** to add an user.
+	1. Fill the fields on **Adding a User**
+		- **Type:** Normal
+		- **Organisation:** JASHWS
+		- **Login:** user1@jah.com
+		- **Name:** User1
+		- **Profile:** Analyst
+	2. Then, click **Confirm**.
+	3. To create the API kei, click on **Preview** on the created user:
+		1. Under **API Key**, click on **Create**.
+		2. Copy the created API key for future use.
+		- dsv6aWgxlPbibBDtZCgDDPNSj87ltVvs
+
+### Configure Wazuh manager
+
+1. First, install the TheHive Python module:
+	1. thehive4py v1.x:
 	```bash
-	$ sudo apt update
-	$ sudo apt install python3
+	$ sudo /var/ossec/framework/python/bin/pip3 install thehive4py==1.8.1
 	```
-2. Install the TheHive Python module using PIP, which will be referenced in the custom integration script.
+	2. thehive4py v2.x:
 	```bash
-	$ sudo /var/ossec/framework/python/bin/pip3 install thehive4py
+	$ pip install "thehive4py>=2.0.0b"
 	```
-3. Creating the custom integration script called `custom-w2thive.py` and save it at `/var/ossec/integrations/`:
+2. Create the custom integration script called `custom-w2thive.py` and save it at `/var/ossec/integrations/`:
 	```bash
 	$ sudo nano /var/ossec/integrations/custom-w2thive.py
 	```
-	- Set the content below to the script and save it:
+	- Set the content below to the python script and save it:
 	```python
 	#!/var/ossec/framework/python/bin/python3
 	import json
@@ -520,25 +561,32 @@ Wazuh Integrations provide seamless connectivity between the Wazuh platform and 
 	from thehive4py.api import TheHiveApi
 	from thehive4py.models import Alert, AlertArtifact
 
+	#start user config
+
 	# Global vars
-	lvl_threshold=0				# Threshold for wazuh rules level
-	suricata_lvl_threshold=3	# Threshold for suricata rules level
+
+	#threshold for wazuh rules level
+	lvl_threshold=0
+	#threshold for suricata rules level
+	suricata_lvl_threshold=3
+
 	debug_enabled = False
-	info_enabled = True			# Info about created alert
+	#info about created alert
+	info_enabled = True
+
+	#end user config
 
 	# Set paths
 	pwd = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 	log_file = '{0}/logs/integrations.log'.format(pwd)
 	logger = logging.getLogger(__name__)
-
-	# Set logging level
+	#set logging level
 	logger.setLevel(logging.WARNING)
 	if info_enabled:
 		logger.setLevel(logging.INFO)
 	if debug_enabled:
 		logger.setLevel(logging.DEBUG)
-
-	# Create the logging file handler
+	# create the logging file handler
 	fh = logging.FileHandler(log_file)
 	formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 	fh.setFormatter(formatter)
@@ -566,14 +614,14 @@ Wazuh Integrations provide seamless connectivity between the Wazuh platform and 
 		alert = generate_alert(format_alt, artifacts_dict, w_alert)
 		logger.debug('#threshold filtering')
 		if w_alert['rule']['groups']==['ids','suricata']:
-			# Checking the existence of the data.alert.severity field
+			#checking the existence of the data.alert.severity field
 			if 'data' in w_alert.keys():
 				if 'alert' in w_alert['data']:
-					# Checking the level of the source event
+					#checking the level of the source event
 					if int(w_alert['data']['alert']['severity'])<=suricata_lvl_threshold:
 						send_alert(alert, thive_api)
 		elif int(w_alert['rule']['level'])>=lvl_threshold:
-			# If the event is different from suricata AND suricata-event-type: alert check lvl_threshold
+			#if the event is different from suricata AND suricata-event-type: alert check lvl_threshold
 			send_alert(alert, thive_api)
 
 	def pr(data,prefix, alt):
@@ -586,7 +634,7 @@ Wazuh Integrations provide seamless connectivity between the Wazuh platform and 
 
 	def md_format(alt,format_alt=''):
 		md_title_dict = {}
-		# Sorted with first key
+		#sorted with first key
 		for now in alt:
 			now = now[1:]
 			#fix first key last symbol
@@ -614,7 +662,7 @@ Wazuh Integrations provide seamless connectivity between the Wazuh platform and 
 		return artifacts_dict
 
 	def generate_alert(format_alt, artifacts_dict,w_alert):
-		# Generate alert sourceRef
+		#generate alert sourceRef
 		sourceRef = str(uuid.uuid4())[0:6]
 		artifacts = []
 		if 'agent' in w_alert.keys():
@@ -622,6 +670,7 @@ Wazuh Integrations provide seamless connectivity between the Wazuh platform and 
 				w_alert['agent']['ip']='no agent ip'
 		else:
 			w_alert['agent'] = {'id':'no agent id', 'name':'no agent name'}
+
 		for key,value in artifacts_dict.items():
 			for val in value:
 				artifacts.append(AlertArtifact(dataType=key, data=val))
@@ -647,59 +696,70 @@ Wazuh Integrations provide seamless connectivity between the Wazuh platform and 
 			logger.error('Error create TheHive alert: {}/{}'.format(response.status_code, response.text))
 
 	if __name__ == "__main__":
+
 		try:
 		logger.debug('debug mode') # if debug enabled
 		# Main function
 		main(sys.argv)
+
 		except Exception:
 		logger.exception('EGOR')
-       ```
-4. Next, create a bash script called `custom-w2thive` and place it in `/var/ossec/integrations/custom-w2thive` which is needed to properly execute the `.py` script created above:
+	```
+4. Create a bash script as `/var/ossec/integrations/custom-w2thive`. This will properly execute the .py script created in the previous step:
 	```bash
 	$ sudo nano /var/ossec/integrations/custom-w2thive
 	```
-	- Set the content below to the script:
+	- Set the content below to the bash script and save it:
 	```bash
 	#!/bin/sh
 	# Copyright (C) 2015-2020, Wazuh Inc.
 	# Created by Wazuh, Inc. <info@wazuh.com>.
 	# This program is free software; you can redistribute it and/or modify it under the terms of GP>
+
 	WPYTHON_BIN="framework/python/bin/python3"
+
 	SCRIPT_PATH_NAME="$0"
+
 	DIR_NAME="$(cd $(dirname ${SCRIPT_PATH_NAME}); pwd -P)"
 	SCRIPT_NAME="$(basename ${SCRIPT_PATH_NAME})"
+
 	case ${DIR_NAME} in
 		*/active-response/bin | */wodles*)
 			if [ -z "${WAZUH_PATH}" ]; then
 				WAZUH_PATH="$(cd ${DIR_NAME}/../..; pwd)"
 			fi
+
 		PYTHON_SCRIPT="${DIR_NAME}/${SCRIPT_NAME}.py"
 		;;
 		*/bin)
 		if [ -z "${WAZUH_PATH}" ]; then
 			WAZUH_PATH="$(cd ${DIR_NAME}/..; pwd)"
 		fi
+
 		PYTHON_SCRIPT="${WAZUH_PATH}/framework/scripts/${SCRIPT_NAME}.py"
 		;;
 		*/integrations)
 			if [ -z "${WAZUH_PATH}" ]; then
 				WAZUH_PATH="$(cd ${DIR_NAME}/..; pwd)"
 			fi
+
 		PYTHON_SCRIPT="${DIR_NAME}/${SCRIPT_NAME}.py"
 		;;
 	esac
+
+
 	${WAZUH_PATH}/${WPYTHON_BIN} ${PYTHON_SCRIPT} $@
 	```
-5. Set up permissions and ownership:
+5. Change files' permissions and ownership:
 	```bash
-	$ sudo chmod 755 /var/ossec/integrations/custom-w2thive.py
-	$ sudo chmod 755 /var/ossec/integrations/custom-w2thive
+	$ sudo chmod 750 /var/ossec/integrations/custom-w2thive.py
+	$ sudo chmod 750 /var/ossec/integrations/custom-w2thive
 	$ sudo chown root:wazuh /var/ossec/integrations/custom-w2thive.py
 	$ sudo chown root:wazuh /var/ossec/integrations/custom-w2thive
 	```
 6. Enable the integration in the Wazuh manager configuration file:
 	```bash
-	$ nano /var/ossec/etc/ossec.conf
+	$ sudo nano /var/ossec/etc/ossec.conf
 	```
 	- Set the content below to the configuration file:
 	```html
@@ -714,56 +774,460 @@ Wazuh Integrations provide seamless connectivity between the Wazuh platform and 
 	…
 	</ossec_config>
 	```
-	- Where `<TheHive_Server_IP>` is the IP address of the server hosting TheHive and `<TheHive_User_API_Key>` is the API key of the TheHive user.
+	- Where `<TheHive_Server_IP>` is the IP a
+f the TheHive user.
 7. Then, restart the Wazuh manager:
 	```bash
 	$ sudo systemctl restart wazuh-manager
 	```
-</span>
 </details>
 
+
+<!---------- Admyral Integration with Wazuh ---------->
 <details>
 <summary>
 <h3>Admyral integration with Wazuh</h3>
 </summary>
-<span style="color:gray">
 
 Configure **Wazuh** to connect to **Admyral**:
 
-1. Open the `/var/ossec/etc/ossec.conf` file, then after the **global tag**, insert the **Shuffle integration tag**:
+1. First, create a bash script called `custom-admryral` at the `/var/ossec/integrations/` directory. This will properly execute the `custom-admyral.py` script, which will be responsible for the API request:
+	```bash
+	$ sudo nano /var/ossec/integrations/custom-admyral
+	```
+	- Set to the bash script the content below and save it:
+	```bash
+	#!/bin/sh
+	# Copyright (C) 2015, Wazuh Inc.
+	# Created by Wazuh, Inc. <info@wazuh.com>.
+	# This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
+
+	WPYTHON_BIN="framework/python/bin/python3"
+
+	SCRIPT_PATH_NAME="$0"
+
+	DIR_NAME="$(cd $(dirname ${SCRIPT_PATH_NAME}); pwd -P)"
+	SCRIPT_NAME="$(basename ${SCRIPT_PATH_NAME})"
+
+	case ${DIR_NAME} in
+		*/active-response/bin | */wodles*)
+			if [ -z "${WAZUH_PATH}" ]; then
+				WAZUH_PATH="$(cd ${DIR_NAME}/../..; pwd)"
+			fi
+
+			PYTHON_SCRIPT="${DIR_NAME}/${SCRIPT_NAME}.py"
+		;;
+		*/bin)
+			if [ -z "${WAZUH_PATH}" ]; then
+				WAZUH_PATH="$(cd ${DIR_NAME}/..; pwd)"
+			fi
+
+			PYTHON_SCRIPT="${WAZUH_PATH}/framework/scripts/$(echo ${SCRIPT_NAME} | sed 's/\-/_/g').py"
+		;;
+		*/integrations)
+			if [ -z "${WAZUH_PATH}" ]; then
+				WAZUH_PATH="$(cd ${DIR_NAME}/..; pwd)"
+			fi
+
+			PYTHON_SCRIPT="${DIR_NAME}/${SCRIPT_NAME}.py"
+		;;
+	esac
+
+	${WAZUH_PATH}/${WPYTHON_BIN} ${PYTHON_SCRIPT} "$@"
+	```
+2. Now let's create on the integrations directory the python script `custom-admyral.py`, which will fetch the alert and make the API request to Admyral:
+	```bash
+	$ sudo nano /var/ossec/integrations/custom-admyral.py
+	```
+	- Set to the bash script the content below and save it:
+	```bash
+	# Created by Robson K. Nazareth. <robson.knazareth@gmail.com>.
+	# Based on the Shuffle integration using Webhooks
+	#
+	# This program is free software; you can redistribute it
+	# and/or modify it under the terms of the GNU General Public
+	# License (version 2) as published by the FSF - Free Software
+	# Foundation.
+
+	# Error Codes:
+	#   1 - Module requests not found
+	#   2 - Incorrect input arguments
+	#   3 - Alert File does not exist
+	#   4 - Error getting json_alert
+
+	import json
+	import os
+	import sys
+	import time
+
+	# Exit error codes
+	ERR_NO_REQUEST_MODULE   = 1
+	ERR_BAD_ARGUMENTS       = 2
+	ERR_FILE_NOT_FOUND      = 6
+	ERR_INVALID_JSON        = 7
+
+	try:
+		import requests
+		from requests.auth import HTTPBasicAuth
+	except ModuleNotFoundError as e:
+		print("Module 'requests' not found. To install run: pip install requests")
+		sys.exit(ERR_NO_REQUEST_MODULE)
+
+	# Configuration structure on ossec.conf within the <ossec_config> tag
+	"""
+	<integration>
+	<name>custom-admyral</name>
+	<hook_url>http://<ADMYRAL_IP>:8000/webhooks/HOOK_ID/HOOK_SECRET </hook_url> <!-- Replace with your Admyral webhook URL -->
+	<level>3</level>
+	<rule_id>86601</rule_id>
+	<alert_format>json</alert_format>
+	<options>{"field":"data"}</options> <!-- Replace with your custom JSON object -->
+	</integration>
+	"""
+
+	# Global vars
+	debug_enabled   = False
+	pwd             = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+	json_alert      = {}
+	SKIP_RULE_IDS   = []
+
+	# Log path
+	LOG_FILE        = f'{pwd}/logs/integrations.log'
+
+	# Constants - args[] indexes
+	ALERT_INDEX     = 1
+	WEBHOOK_INDEX   = 3
+
+
+	def main(args):
+		global debug_enabled
+		try:
+			# Read arguments
+			bad_arguments: bool = False
+			if len(args) >= 4:
+				msg = '{0} {1} {2} {3} {4}'.format(
+					args[1],
+					args[2],
+					args[3],
+					args[4] if len(sys.argv) > 4 else '',
+					args[5] if len(sys.argv) > 5 else ''
+				)
+				debug_enabled = (len(args) > 4 and args[4] == 'debug')
+			else:
+				msg = '# ERROR: Wrong arguments'
+				bad_arguments = True
+
+			# Logging the call
+			with open(LOG_FILE, "a") as f:
+				f.write(msg + '\n')
+
+			if bad_arguments:
+				debug("# ERROR: Exiting, bad arguments. Inputted: %s" % args)
+				sys.exit(ERR_BAD_ARGUMENTS)
+
+			# Core function
+			process_args(args)
+
+		except Exception as e:
+			debug(str(e))
+			raise
+
+
+	def process_args(args) -> None:
+		"""
+			This is the core function, creates a message with all valid fields
+			and overwrite or add with the optional fields
+
+			Parameters
+			----------
+			args : list[str]
+				The argument list from main call
+
+			Raises
+			------
+			FileNotFoundError
+				If no alert file or optional file are presents.
+			JSONDecodeError
+				If no valid JSON file are used
+		"""
+		debug("# Running Shuffle script")
+
+		# Read args
+		alert_file_location: str     = args[ALERT_INDEX]
+		webhook: str                 = args[WEBHOOK_INDEX]
+		options_file_location: str   = ''
+		json_options: str            = ''
+
+		# Look for options file location
+		for idx in range(4, len(args)):
+			if(args[idx][-7:] == "options"):
+				options_file_location = args[idx]
+				break
+
+		# Load options. Parse JSON object.
+		json_options = get_json_options(options_file_location)
+		debug(f"# Opening options file at '{options_file_location}' with '{json_options}'")
+
+		# Load alert. Parse JSON object.
+		json_alert  = get_json_alert(alert_file_location)
+		debug(f"# Opening alert file at '{alert_file_location}' with '{json_alert}'")
+
+		debug("# Generating message")
+		msg: str = generate_msg(json_alert, json_options)
+
+		# Check if alert is skipped
+		if isinstance(msg, str):
+			if not msg:
+				return
+
+		debug(f"# Sending message {msg} to Admyral server")
+		send_msg(msg, webhook)
+
+	def debug(msg: str) -> None:
+		"""
+			Log the message in the log file with the timestamp, if debug flag
+			is enabled
+
+			Parameters
+			----------
+			msg : str
+				The message to be logged.
+		"""
+		if debug_enabled:
+			print(msg)
+			with open(LOG_FILE, "a") as f:
+				f.write(msg + '\n')
+
+
+	# Skips container kills to stop self-recursion
+	def filter_msg(alert) -> bool:
+		# SKIP_RULE_IDS need to be filtered because Shuffle starts Docker containers, therefore those alerts are triggered
+
+		return not alert["rule"]["id"] in SKIP_RULE_IDS
+
+
+	def generate_msg(alert: any, options: any) -> str:
+		"""
+			Generate the JSON object with the message to be send
+
+			Parameters
+			----------
+			alert : any
+				JSON alert object.
+			options: any
+				JSON options object.
+
+			Returns
+			-------
+
+			msg: str
+				The JSON message to send
+		"""
+		if not filter_msg(alert):
+			print("Skipping rule %s" % alert["rule"]["id"])
+			return ""
+
+		level = alert['rule']['level']
+
+		if (level <= 4):
+			severity = 1
+		elif (level >= 5 and level <= 7):
+			severity = 2
+		else:
+			severity = 3
+
+		msg = {'severity': severity, 'pretext': "WAZUH Alert",
+			'title': alert['rule']['description'] if 'description' in alert['rule'] else "N/A",
+			'text': alert.get('full_log'),
+			'rule_id': alert["rule"]["id"],
+			'timestamp': alert["timestamp"],
+			'id': alert['id'], "all_fields": alert}
+
+		if(options):
+			msg.update(options)
+
+		return json.dumps(msg)
+
+	def send_msg(msg: str, url: str) -> None:
+		"""
+			Send the message to the API
+
+			Parameters
+			----------
+			msg : str
+				JSON message.
+			url: str
+				URL of the integration.
+		"""
+		headers = {'content-type': 'application/json', 'Accept-Charset': 'UTF-8'}
+		res     = requests.post(url, data=msg, headers=headers, timeout=10)
+		debug("# Response received: %s" % res.json)
+
+	def get_json_alert(file_location: str) -> any:
+		"""
+			Read JSON alert object from file
+
+			Parameters
+			----------
+			file_location : str
+				Path to the JSON file location.
+
+			Returns
+			-------
+			{}: any
+				The JSON object read it.
+
+			Raises
+			------
+			FileNotFoundError
+				If no JSON file is found.
+			JSONDecodeError
+				If no valid JSON file are used
+		"""
+		try:
+			with open(file_location) as alert_file:
+				return json.load(alert_file)
+		except FileNotFoundError:
+			debug("# JSON file for alert %s doesn't exist" % file_location)
+			sys.exit(ERR_FILE_NOT_FOUND)
+		except json.decoder.JSONDecodeError as e:
+			debug("Failed getting JSON alert. Error: %s" % e)
+			sys.exit(ERR_INVALID_JSON)
+
+	def get_json_options(file_location: str) -> any:
+		"""
+			Read JSON options object from file
+
+			Parameters
+			----------
+			file_location : str
+				Path to the JSON file location.
+
+			Returns
+			-------
+			{}: any
+				The JSON object read it.
+
+			Raises
+			------
+			JSONDecodeError
+				If no valid JSON file are used
+		"""
+		try:
+			with open(file_location) as options_file:
+				return json.load(options_file)
+		except FileNotFoundError:
+			debug("# JSON file for options %s doesn't exist" % file_location)
+		except BaseException as e:
+			debug("Failed getting JSON options. Error: %s" % e)
+			sys.exit(ERR_INVALID_JSON)
+
+	if __name__ == "__main__":
+		main(sys.argv)
+
+	```
+3. Change files' permissions and ownership:
+	```bash
+	$ sudo chmod 750 /var/ossec/integrations/custom-w2thive
+	$ sudo chmod 750 /var/ossec/integrations/custom-w2thive.py
+	$ sudo chown root:wazuh /var/ossec/integrations/custom-w2thive
+	$ sudo chown root:wazuh /var/ossec/integrations/custom-w2thive.py
+	```
+4. Enable the integration in the Wazuh manager configuration file:
 	```bash
 	$ sudo nano /var/ossec/etc/ossec.conf
 	```
-	- Add the **Admyral integration tag**:
+	- Set the content below to the configuration file within the <ossec_config> tag:
 	```html
 	<ossec_config>
-		<global>
-		...
-		</global>
-
-		<integration>
-		<name>admyral</name>
-		#<hook_url>http://shuffler.io/api/v1/hooks/<HOOK_ID> </hook_url>
-		<hook_url>http://192.168.57.3:5000/webhook/c3fd5de1-f115-43de-bec0-458547605805/069431c18ba55caebb3a8c90f4a4b6396ec575ccaa9a5d41ae5ed8ed8b28d31d </hook_url>
-		<level>3</level>            # send all level 3 alerts to shuffle
-		<rule_id>1</rule_id>   		# send alerts with rule_id 100002
-		<alert_format>jsaon</alert_format>
-		</integration>
-
-		<alerts>
-		...
-		</alerts>
-
-		...
+	…
+	  <integration>
+		<name>custom-admyral</name>
+		<hook_url>http://<ADMYRAL_IP>:8000/webhooks/<HOOK_ID>/<HOOK_SECRET> </hook_url>
+		<level>3</level>
+		<rule_id>86601</rule_id>
+		<alert_format>json</alert_format>
+	  </integration>
+	…
 	</ossec_config>
 	```
-	- Make sure you leave a space between the `<HOOK_ID>` and the closing tag `</hook_url>`.
-2. Restart the **wazuh-manager** and check its status:
+5. Then, restart the Wazuh manager:
 	```bash
 	$ sudo systemctl restart wazuh-manager
-	$ systemctl status wazuh-manager
 	```
-</span>
+</details>
+
+
+<!---------- MISP Integration with Wazuh ---------->
+<details>
+<summary>
+<h3>MISP integration with Wazuh</h3>
+</summary>
+
+1. Installing MISP:
+	1. Update your system:
+		```bash
+		$ sudo apt update && sudo apt upgrade
+		```
+	2. Install the client for mysql:
+		```bash
+		$ sudo apt install mysql-client
+		```
+	3. Download MISP installation script:
+		```bash
+		$ wget https://raw.githubusercontent.com/MISP/MISP/2.4/INSTALL/INSTALL.sh
+		```
+	4. Add execution permission to the script and run it:
+		```bash
+		$ chmod +x INSTALL.sh
+		$ ./INSTALL.sh -A
+		```
+		- Output:
+		```yml
+		MISP Installed, access here:
+
+		User: admin@admin.test
+		Password: admin
+		----------------------------------------------------------------------------------------------
+		The following files were created and need either protection or removal (shred on the CLI)
+		/home/user/mysql.txt
+		Contents:
+		Admin (root) DB Password: e8c75d8d78a2e01281b42e2c0d4ac668a333de31c56283cab695a69eb6d31330
+		User  (misp) DB Password: 2cf81c7b9bdb0a704785b5da7da106e3ad9a1b04e6d8306fcfbd59d4c9e33d17
+		/home/user/MISP-authkey.txt
+		Contents:
+		Authkey: DMVZLTkH9BOUo7DAX5pKbWaCT8TBFnqd81gnTdgK
+		----------------------------------------------------------------------------------------------
+		The LOCAL system credentials:
+		User: user
+		Password: 29fefbbfc917e97504a2eb60f1fd50f3c4ada637b5033c8dcf00736f24908827 # Or the password you used of your custom user
+		----------------------------------------------------------------------------------------------
+		GnuPG Passphrase is: e9689f40df4b2628bb834c9e53568e4f8efc2d90fb469dfab222cfd28c5ff812
+		----------------------------------------------------------------------------------------------
+		To enable outgoing mails via postfix set a permissive SMTP server for the domains you want to contact:
+
+		sudo postconf -e 'relayhost = example.com'
+		sudo postfix reload
+		----------------------------------------------------------------------------------------------
+		Enjoy using MISP. For any issues see here: https://github.com/MISP/MISP/issues
+		----------------------------------------------------------------------------------------------
+		```
+	5. Allow connections on port 80 and 443:
+		```bash
+		$ sudo ufw allow 80/tcp
+		$ sudo ufw allow 443/tcp
+		```
+2. Change admin password:
+	1. Browse to https://<"your misp instance ip">/users/login
+		- Username: admin@admin.test
+		- Password: admin
+		- Enter new password
+3. Create an organization:
+	1. Select **Administration** > **Add Organisations**.
+	2. Enter **ORG name** into **Organisation Identifier**.
+	3. Select **Generate UUID**.
+	4. Select **Submit** at the bottom.
+
 </details>
 
 
@@ -774,11 +1238,12 @@ Configure **Wazuh** to connect to **Admyral**:
 
 Suricata is an open-source intrusion detection and prevention system that provides real-time network security monitoring and threat detection capabilities. It is designed to protect networks from a wide range of cyber threats and attacks.
 
+
+<!---------- 1. Suricata installation ---------->
 <details>
 <summary>
 <h3>1. Suricata installation</h3>
 </summary>
-<span style="color:gray">
 
 1. First, install the dependency package, `jq` tool, and add the Suricata PPA repository to Apt:
 	```bash
@@ -805,14 +1270,15 @@ Suricata is an open-source intrusion detection and prevention system that provid
     2. Suricata pre-defined rules: `/usr/share/suricata/rules`
     3. Suricata default rule path: `/var/lib/suricata/rules`
     5. Suricata log directory: `/var/log/suricata`
-</span>
+
 </details>
 
+
+<!---------- 2. Basic setup ---------->
 <details>
 <summary>
 <h3>2. Basic setup</h3>
 </summary>
-<span style="color:gray">
 
 1. To configure Suricata open `suricata.yaml`:
 	```bash
@@ -865,14 +1331,14 @@ Suricata is an open-source intrusion detection and prevention system that provid
 	```bash
 	$ sudo systemctl restart suricata
 	```
-</span>
 </details>
 
+
+<!---------- 3. Update Suricata Signatures/Rules ---------->
 <details>
 <summary>
 <h3>3. Update Suricata Signatures/Rules</h3>
 </summary>
-<span style="color:gray">
 
 1. Run the default mode which fetches the ET Open ruleset:
 	```bash
@@ -880,14 +1346,15 @@ Suricata is an open-source intrusion detection and prevention system that provid
 	```
 	- The rules are saved in the `/var/lib/suricata/rules/suricata.rules` file.
 	- Always after modify the Suricata config file `suricata.yaml`, restart the Suricata service and run the `suricata-update`.
-</span>
+
 </details>
 
+
+<!---------- 4. Running Suricata ---------->
 <details>
 <summary>
 <h3>4. Running Suricata</h3>
 </summary>
-<span style="color:gray">
 
 1. Check the Suricata log to make sure it is running:
 	```bash
@@ -899,14 +1366,15 @@ Suricata is an open-source intrusion detection and prevention system that provid
 	$ sudo tail -f /var/log/suricata/stats.log
 	```
 	- By default it is updated every 8 seconds.
-</span>
+
 </details>
 
+
+<!---------- 5. Alerting ---------->
 <details>
 <summary>
 <h3>5. Alerting</h3>
 </summary>
-<span style="color:gray">
 
 1. Let's test the IDS functionality of Suricata with the signature with ID 2100498:
 	```bash
@@ -925,14 +1393,14 @@ Suricata is an open-source intrusion detection and prevention system that provid
 	```bash
 	$ curl http://testmynids.org/uid/index.html
 	```
-</span>
 </details>
 
+
+<!---------- 6. EVE Json ---------->
 <details>
 <summary>
 <h3>6. EVE Json</h3>
 </summary>
-<span style="color:gray">
 
 1. Use `jq` to parse the JSON output:
 	1. Display the alerts:
@@ -944,14 +1412,32 @@ Suricata is an open-source intrusion detection and prevention system that provid
 		$ sudo tail -f /var/log/suricata/eve.json | jq 'select(.event_type=="stats")|.stats.capture.kernel_packets'
 		$ sudo tail -f /var/log/suricata/eve.json | jq 'select(.event_type=="stats")'
 		```
-</span>
 </details>
 
+
+<!---------- 7. Suricata files and troubleshooting ---------->
 <details>
 <summary>
-<h3>7. Suricata docummentaion</h3>
+<h3>7. Suricata files and troubleshooting</h3>
 </summary>
-<span style="color:gray">
+
+1. Suricata files and directories:
+    1. Default location of the Suricata configuration file: `/etc/suricata/suricata.yaml`
+    2. Default Suricata log directory: `/var/log/suricata`
+2. Troubleshooting:
+    1. Look into the `suricata-start.log` and `suricata.log` files for errors and other events during the suricata startup and operation respectively:
+        ```bash
+        $ cat /var/log/suricata/suricata-start.log | grep -Pi "error|fail|warn|info"
+        $ cat /var/log/suricata/suricata.log | grep -Pi "error|fail|warn|info"
+        ```
+</details>
+
+
+<!---------- 8. Suricata docummentaion ---------->
+<details>
+<summary>
+<h3>8. Suricata docummentaion</h3>
+</summary>
 
 1. Suricata User Guide:
 	- [User Guide](https://docs.suricata.io/en/latest/index.html).
@@ -965,7 +1451,7 @@ Suricata is an open-source intrusion detection and prevention system that provid
 	- [Quick Start](https://suricata-update.readthedocs.io/en/latest/quickstart.html)
 4. Github:
 	- [Evebox](https://github.com/jasonish/evebox)
-</span>
+
 </details>
 
 
@@ -976,24 +1462,25 @@ Suricata is an open-source intrusion detection and prevention system that provid
 
 TheHive is a collaborative security and incident response platform that enables organizations to manage and investigate security incidents efficiently. It provides a centralized hub for teams to coordinate and track their response efforts. The steps below describe the standalone installation of an instance of TheHive, where everything is on the same server.
 
+
+<!---------- STEP 1: DEPENDENCIES ---------->
 <details>
 <summary>
 <h3>Step 1: Dependencies</h3>
 </summary>
-<span style="color:gray">
 
 1. Run the command below to install the dependencies if not already installed:
     ```bash
     $ sudo apt install wget gnupg apt-transport-https git ca-certificates ca-certificates-java curl  software-properties-common python3-pip lsb-core
     ```
-</span>
 </details>
 
+
+<!---------- STEP 2: JAVA VIRTUAL MACHINE ---------->
 <details>
 <summary>
 <h3>Step 2: Java Virtual Machine</h3>
 </summary>
-<span style="color:gray">
 
 Install Java Virtual Machine:
 
@@ -1016,14 +1503,14 @@ Install Java Virtual Machine:
     ```bash
     $ java -version
     ```
-</span>
 </details>
 
+
+<!---------- STEP 3: APACHE CASSANDRA ---------->
 <details>
 <summary>
 <h3>Step 3: Apache Cassandra</h3>
 </summary>
-<span style="color:gray">
 
 Apache Cassandra is a scalable and highly available database.
 
@@ -1085,14 +1572,15 @@ Apache Cassandra is a scalable and highly available database.
     - 9042/tcp (client)
     - 7199
     - 46315
-</span>
+
 </details>
 
+
+<!---------- STEP 4: ELASTICSEARCH ---------->
 <details>
 <summary>
 <h3>Step 4: Elasticsearch</h3>
 </summary>
-<span style="color:gray">
 
 Elasticsearch is a robust data indexing and search engine. It is used by TheHive to manage data indicies efficiently.
 
@@ -1159,17 +1647,18 @@ Elasticsearch is a robust data indexing and search engine. It is used by TheHive
     $ sudo systemctl start elasticsearch
     $ sudo systemctl status elasticsearch
     ```
-- By default, Elasticsearch listens on the following ports:
-    - 9200 (http)
-    - 9300
-</span>
+- Elasticsearch will be listening on the following ports:
+    - 9201 (http)
+    - 9301
+
 </details>
 
+
+<!---------- STEP 5: FILE STORAGE ---------->
 <details>
 <summary>
 <h3>Step 5: File storage</h3>
 </summary>
-<span style="color:gray">
 
 1. To store files on the local filesystem, start by choosing the dedicated folder (by default `/opt/thp/thehive/files`):
     ```bash
@@ -1181,14 +1670,14 @@ Elasticsearch is a robust data indexing and search engine. It is used by TheHive
     $ sudo chown -R thehive:thehive /opt/thp/thehive/files
     $ ls -lh /opt/thp/thehive/
     ```
-</span>
 </details>
 
+
+<!---------- STEP 6: THEHIVE ---------->
 <details>
 <summary>
 <h3>Step 6: TheHive</h3>
 </summary>
-<span style="color:gray">
 
 TheHive is a scalable Security Incident Response Platform integrated with MISP (Malware Information Sharing Platform) for promptly investigating and addressing security incidents.
 
@@ -1253,14 +1742,14 @@ TheHive is a scalable Security Incident Response Platform integrated with MISP (
     $ sudo systemctl enable thehive
     $ systemctl status thehive
     ```
-</span>
 </details>
 
+
+<!---------- STATUS CHECK ---------->
 <details>
 <summary>
 <h3>Status check</h3>
 </summary>
-<span style="color:gray">
 
 Check if Cassandra, Elasticsearch, and TheHive services are running:
 ```bash
@@ -1270,14 +1759,14 @@ $ systemctl status thehive
 ```
 **Note:** Any modification on the configuration file of Cassandra, Elasticsearch, or TheHive should follow a reset of the three services with TheHive last.
 
-</span>
 </details>
 
+
+<!---------- TROUBLESHOOTING ---------->
 <details>
 <summary>
 <h3>Troubleshooting</h3>
 </summary>
-<span style="color:gray">
 
 1. Check possible issues reported in the Cassandra log file:
     ```bash
@@ -1291,21 +1780,48 @@ $ systemctl status thehive
     ```bash
     $ sudo cat /var/log/thehive/applicatin.log | grep -E "ERROR|Caused"
     ```
-</span>
 </details>
 
 
+<!---------- TheHive Create Organization and User Accounts ---------->
 <details>
 <summary>
-<h3>TheHive Create User Account</h3>
+<h3>TheHive Create Organization and User Accounts</h3>
 </summary>
-<span style="color:gray">
 
-1. Sign in into TheHive:
+Sign in into TheHive.
 
-</span>
+### Create Organisation
+
+1. Go to **Organisations** and click on the **plus sign** to create one if you already don't have one.
+	1. Fill the fields on **Adding an Organisation**.
+		- **Name:** JAHWS
+		- **Description:** SOC Automation Project
+		- **Tasks sharing rule:** manual
+		- **Observables sharing rule:** manual
+	2. Then, click **Confirma**.
+
+### Create User Accounts
+
+1. On **Organisations**, click on the organization name.
+2. On the organisaton page, under **Users** click on the **plus sign** to add an user.
+	1. Fill the fields on **Adding a User**
+		- **Type:** Normal
+		- **Organisation:** JASHWS
+		- **Login:** user1@jah.com
+		- **Name:** User1
+		- **Profile:** Analyst
+	2. Then, click **Confirm**.
+3. To add a second user, click on the **plus sign** again user **Users**.
+	1. Fill the fields on **Adding a User**
+		- **Type:** Service
+		- **Organisation:** JASHWS
+		- **Login:** shuffle@jah.com
+		- **Name:** User Shuffle
+		- **Profile:** Analyst
+	2. Then, click **Confirm**.
+
 </details>
-
 
 
 ---------------------------------------------------------------------------------------------------
@@ -1315,11 +1831,12 @@ $ systemctl status thehive
 
 Docker Engine is an open source containerization technology for building and containerizing applications, which acts as a client-server application.
 
+
+<!-- Installation -->
 <details>
 <summary>
 <h3>Installation</h3>
 </summary>
-<span style="color:gray">
 
 1. Install dependencies:
 	```bash
@@ -1348,21 +1865,23 @@ Docker Engine is an open source containerization technology for building and con
 	```bash
 	$ sudo docker run hello-world
 	```
-</span>
+6. (TODO) Permissions:
+
 </details>
 
 ---------------------------------------------------------------------------------------------------
 
 
-## Admyral Installation on Ubuntu Server using Docker
+## (TODO - update to new version) Admyral Installation on Ubuntu Server using Docker
 
 Admyral is an open-source Cybersecurity Automation & Investigation Assistant powered by AI.
 
+
+<!-- Installation -->
 <details>
 <summary>
 <h3>Installation</h3>
 </summary>
-<span style="color:gray">
 
 1. Clone the repository:
     ```bash
@@ -1371,7 +1890,7 @@ Admyral is an open-source Cybersecurity Automation & Investigation Assistant pow
 
 2. Change directory to docker self-hosting:
     ```bash
-    $ cd admyral/deploy/selfhosting
+    $ cd admyral/deploy/self-hosting
     ```
 
 3. Copy and edit the env vars:
@@ -1430,20 +1949,67 @@ Admyral is an open-source Cybersecurity Automation & Investigation Assistant pow
     ```bash
     $ sudo docker compose restart
     ```
-</span>
 </details>
 
+
+<!-- Install Admyral using pip -->
+<details>
+<summary>
+<h3>Install Admyral using pip</h3>
+</summary>
+
+### Step 1: Installing and Starting Admyral
+
+1. Install Admyrall using pip and Python 3.12:
+	```bash
+	python3.12 -m pip install admyral
+	```
+2. Start Admyral:
+	```bash
+	admyral up
+	```
+### Step 2: Tool and Secret Setup
+
+</details>
+
+
+<!-- Troubleshooting -->
+<details>
+<summary>
+<h3>Troubleshooting</h3>
+</summary>
+
+1. Install Python 3.12 and pip for python 3.12
+	```BASH
+	sudo apt update && sudo apt upgrade
+	sudo apt install software-properties-common
+	sudo add-apt-repository ppa:deadsnakes/ppa
+	sudo apt update
+	sudo apt install python3.12
+	sudo python3.12 --version
+	curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12
+	python3.12 -m pip --version
+	```
+2. AttributeError: module 'lib' has no attribute 'X509_V_FLAG_NOTIFY_POLICY'. Did you mean: 'X509_V_FLAG_EXPLICIT_POLICY'?
+	- Solution: Upgrade the latest version of PyOpenSSL.
+		```bash
+		python3.12 -m pip install pip --upgrade
+		python3.12 -m pip install pyopenssl --upgrade
+		```
+</details>
+
+
+<!-- References -->
 <details>
 <summary>
 <h3>References</h3>
 </summary>
-<span style="color:gray">
 
 - GitHub: https://github.com/Admyral-Security/admyral
 - How to contribute: https://github.com/Admyral-Security/admyral/blob/main/CONTRIBUTING.md
 - Cloud Version: https://admyral.dev/login
 - Discord: https://discord.gg/GqbJZT9Hbf
-</span>
+
 </details>
 
 
@@ -1455,11 +2021,11 @@ Admyral is an open-source Cybersecurity Automation & Investigation Assistant pow
 DVWA (Damn Vulnerable Web Application) is a web application designed to help security professionals test their skills and tools in a legal environment. It contains various vulnerabilities for users to exploit and practice their penetration testing techniques.
 
 
+<!-- Step 1: Download and configure DVWA -->
 <details>
 <summary>
 <h3>Step 1: Download and configure DVWA</h3>
 </summary>
-<span style="color:gray">
 
 1. Change your directory to `/var/www/html`:
 	```bash
@@ -1500,14 +2066,14 @@ DVWA (Damn Vulnerable Web Application) is a web application designed to help sec
 	$_DVWA[ 'db_password' ] = 'password';
 	$_DVWA[ 'db_port']      = '3306';
 	```
-</span>
 </details>
 
+
+<!-- Step 2: Install and configure MySQL Server -->
 <details>
 <summary>
 <h3>Step 2: Install and configure MySQL Server</h3>
 </summary>
-<span style="color:gray">
 
 1. Run the command below to install the mysql-server:
 	```bash
@@ -1531,14 +2097,15 @@ DVWA (Damn Vulnerable Web Application) is a web application designed to help sec
 	MariaDB [(none)]> grant all privileges on dvwa.* to 'admin'@'127.0.0.1' identified by 'password';
 	```
 6. Type `exit` to close the database.
-</span>
+
 </details>
 
+
+<!-- Step 3: Install PHP and configure Apache Server -->
 <details>
 <summary>
 <h3>Step 3: Install PHP and configure Apache Server</h3>
 </summary>
-<span style="color:gray">
 
 1. First, update the system and add the SURY PHP PPA repository running the commands below:
 	```bash
@@ -1580,30 +2147,31 @@ DVWA (Damn Vulnerable Web Application) is a web application designed to help sec
 	$ sudo systemctl restart apache2
 	$ sudo systemctl status apache2
 	```
-</span>
 </details>
 
+
+<!-- Step 4: Access DVWA on your browser -->
 <details>
 <summary>
 <h3>Step 4: Access DVWA on your browser</h3>
 </summary>
-<span style="color:gray">
 
 1. From the host machine, open your browser and enter the URL `http://192.168.57.4/dvwa/setup.php`.
 2. Click on **Create / Reset Database** at the bottom, then you will be redirected to the login page.
 3. At the login page, log in using the credentials created earlier, and everything should be up and running.
-</span>
+
 </details>
 
+
+<!-- Troubleshooting -->
 <details>
 <summary>
 <h3>Troubleshooting</h3>
 </summary>
-<span style="color:gray">
 
 1. Look at the error log file:
 	```bash
 	$ nano /var/log/apache2/error.log
 	```
-</span>
 </details>
+

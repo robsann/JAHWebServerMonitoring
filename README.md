@@ -15,6 +15,8 @@ The diagram below illustrates Kali Linux as the host machine hosting the virtual
 
 The diagram below decipts the secuty solution that will be employed.
 
+<img src="images/jahws_sec_tools.png" title="Diagram"/>
+
 ## Installation
 
 For those who are particularly interested in cyber security analysis, you can download the VirtualBox `.OVA` files of the Ubuntu Server virtual machine containing the SOC tools and the Debian virtual machine with the vulnerable web servers pre-installed by clicking on the link provided below:

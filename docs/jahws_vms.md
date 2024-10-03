@@ -17,6 +17,8 @@ This guide outlines the installation and setup of Ubuntu 22.04 and Debian 12.5 o
 
 This section provides instructions for installing VirtualBox and configuring the Host-only Network.
 
+
+<!---------- 1.1 VirtualBox Installation ---------->
 <details>
 	<summary>
 		<h2>1.1 VirtualBox Installation</h2>
@@ -33,6 +35,8 @@ After installing the **VirtualBox Manager**, install the **Extension Pack** to e
 	</span>
 </details>
 
+
+<!---------- 1.2 VirtualBox Host-Only Network Setup ---------->
 <details>
 	<summary>
 		<h2>1.2 VirtualBox Host-Only Network Setup</h2>
@@ -66,6 +70,8 @@ This section walks through the installation and configuration of Ubuntu Server 2
 
 Download the **Ubuntu Server 22.04.x LTS** disk image (ISO) from [here](https://cdimage.ubuntu.com/ubuntu-server/jammy/daily-live/current/), then follow the steps bellow.
 
+
+<!---------- Step 1: Create a New Virtual Machine (VM) ---------->
 <details>
 	<summary>
 		<h3>Step 1: Create a New Virtual Machine (VM)</h3>
@@ -94,6 +100,7 @@ Open **VirtualBox Manager** and click on **New**.
 </details>
 
 
+<!---------- Step 2: Fine Tune the VM ---------->
 <details>
 	<summary>
 		<h3>Step 2: Fine Tune the VM</h3>
@@ -118,6 +125,8 @@ On **VirtualBox Manager**, select the created VM and click on **Settings**.
 	</span>
 </details>
 
+
+<!---------- Step 3: Install Ubuntu Server ---------->
 <details>
 	<summary>
 		<h3>Step 3: Install Ubuntu Server</h3>
@@ -145,11 +154,13 @@ On **VirtualBox Manager**, click on **Sart**.
 	</span>
 </details>
 
+
+<!---------- Step 4: Final Adjustments ---------->
 <details>
-	<summary>
-		<h3>Step 4: Final Adjustments</h3>
-	</summary>
-	<span style="color:grey">
+<summary>
+<h3>Step 4: Final Adjustments</h3>
+</summary>
+<span style="color:grey">
 
 After rebooting **log in** with your credentials.
 
@@ -269,6 +280,8 @@ After rebooting **log in** with your credentials.
 	</span>
 </details>
 
+
+<!---------- Step 5: Create a Snapshot ---------->
 <details>
 	<summary>
 		<h3>Step 5: Create a Snapshot</h3>
@@ -287,13 +300,16 @@ On the VM top menu, go to **Machine** > **Take a Snapshot...**, enter the snapsh
 
 Download the **Debian 12.x.x amd64** disk image (ISO) from [here](https://cdimage.debian.org/debian-cd/), then follow the steps below.
 
+
+<!---------- Step 1: Create a New Virtual Machine (VM) ---------->
 <details>
-	<summary>
-		<h3>Step 1: Create a New Virtual Machine (VM)</h3>
-	</summary>
-	<span style="color:grey">
+<summary>
+<h3>Step 1: Create a New Virtual Machine (VM)</h3>
+</summary>
+<span style="color:grey">
 
 Open the **VirtualBox Manager**, then click on **New**.
+
 1. On **Virtual machine Name and operating system**, set:
     - **Name:** Debian (Web Server)
     - **Machine Folder:** (Select the location to install the VM)
@@ -314,13 +330,16 @@ Open the **VirtualBox Manager**, then click on **New**.
 	</span>
 </details>
 
+
+<!---------- Step 2: Fine Tune the (VM) ---------->
 <details>
-	<summary>
-		<h3>Step 2: Fine Tune the VM</h3>
-	</summary>
-	<span style="color:grey">
+<summary>
+<h3>Step 2: Fine Tune the (VM)</h3>
+</summary>
+<span style="color:grey">
 
 On **VirtualBox Manager**, click on **Settings**.
+
 1. On **General** > **Advanced**, set:
     - **Shared Clipboard:** Bidirectional
     - **Drag'n'Drop:** Bidirectional
@@ -338,13 +357,16 @@ On **VirtualBox Manager**, click on **Settings**.
 	</span>
 </details>
 
+
+<!---------- Step 3: Install Debian CLI ---------->
 <details>
-	<summary>
-		<h3>Step 3: Install Debian CLI</h3>
-	</summary>
-	<span style="color:grey">
+<summary>
+<h3>Step 3: Install Debian CLI</h3>
+</summary>
+<span style="color:grey">
 
 On **VirtualBox Manager**, click on **Sart**.
+
 1. When the Debian installer menu appears, select **Install** to start the installation process.
 2. Select **language**.
 3. Select **your location**.
@@ -360,11 +382,13 @@ On **VirtualBox Manager**, click on **Sart**.
 	</span>
 </details>
 
+
+<!---------- Step 4: Final Adjustments ---------->
 <details>
-	<summary>
-		<h3>Step 4: Final Adjustments</h3>
-	</summary>
-	<span style="color:grey">
+<summary>
+<h3>Step 4: Final Adjustments</h3>
+</summary>
+<span style="color:grey">
 
 After rebooting **log in** with your credentials.
 
@@ -504,11 +528,13 @@ After rebooting **log in** with your credentials.
 	</span>
 </details>
 
+
+<!---------- Step 5: Create a Snapshot ---------->
 <details>
-	<summary>
-		<h3>Step 5: Create a Snapshot</h3>
-	</summary>
-	<span style="color:grey">
+<summary>
+<h3>Step 5: Create a Snapshot</h3>
+</summary>
+<span style="color:grey">
 
 On the VM top menu, go to **Machine** > **Take a Snapshot...**, enter the snapshot name and description, then click **OK**.
 	</span>
