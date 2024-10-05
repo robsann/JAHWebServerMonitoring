@@ -11,7 +11,9 @@ This homelab provides a virtual environment to practice with tools commonly used
 
 The diagram below illustrates Kali Linux as the host machine hosting the virtual environment created with VirtualBox. This virtual environment includes an Ubuntu Server virtual machine equipped with security tools and a Debian virtual machine running the vulnerable web servers. The security tools will utilize APIs to communicate with external services such as VirusTotal and MISP. For those who prefer to use a different host machine such as Windows, instructions will be provided for running Kali Linux as a virtual machine.
 
-<img src="images/jahws_diagram.png" title="Diagram"/>
+<div align="center">
+<img src="images/jahws_diagram.png" title="Diagram" width="80%"/>
+</div>
 
 The diagram below decipts the secuty solution that will be employed.
 
