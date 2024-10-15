@@ -8,7 +8,7 @@ The Wazuh will be installed using the IP address (`172.16.57.2`) from the intern
 2. [Suricata Installation on Ubuntu Server](#suricata-installation-on-ubuntu-server)
 3. [TheHive Installation on Ubuntu Server](#thehive-installation-on-ubuntu-server)
 4. [Docker Installation on Ubuntu Server](#docker-installation-on-ubuntu-server)
-4. [Admyral Installation on Ubuntu Server using Docker](#admyral-installation-on-ubunu-server-using-docker)
+4. [Admyral Installation on Ubuntu Server using Docker](#admyral-installation-on-ubuntu-server-using-docker)
 5. [DVWA Installation on Debian](#dvwa-installation-on-debian)
 
 
