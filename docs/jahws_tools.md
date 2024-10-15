@@ -11,11 +11,6 @@ The Wazuh will be installed using the IP address (`172.16.57.2`) from the intern
 4. [Admyral Installation on Ubuntu Server using Docker](#admyral-installation-on-ubunu-server-using-docker)
 5. [DVWA Installation on Debian](#dvwa-installation-on-debian)
 
-### Ideas to implement
-
-Homelab tools diagram:
-- https://medium.com/@khalid.chbail4/building-a-home-soc-lab-part-1-elk-stack-siem-solution-b82dd396836f
-
 
 ----------------------------------------------------------------------------------------------
 
