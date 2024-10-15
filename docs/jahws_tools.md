@@ -1,4 +1,4 @@
-# Web Server Monitoring: Security Tools
+# Security Tools and Web Servers Installation
 
 The Wazuh will be installed using the IP address (`172.16.57.2`) from the internal network and Cassandra and Elasticsearch the localhost IP address (`127.0.0.1`). TheHIve will be listening on port 9000 (`http://0.0.0.0:9000`) and Wazuh will be listening on port 443 (`https://0.0.0.0:443`). The IP address with 0s means that both services can receive connections destined to any of their IP addresses.
 
