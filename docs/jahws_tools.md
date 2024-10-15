@@ -443,15 +443,6 @@ Edit the agent configuration file to fix the problem:
 
 Wazuh Integrations provide seamless connectivity between the Wazuh platform and third-party tools, allowing for enhanced security monitoring and threat detection capabilities. By integrating with various security solutions, Wazuh enables organizations to centralize their security operations and streamline incident response processes.
 
-### Refresh fields
-
-To refresh the field list, follow the instructions below:
-
-1. Go to "Dashboards Management" > "Dashboards Management" on the left menu.
-2. Click on "Index Patterns" under "Dashboards Management" on the left menu.
-3. Click on "wazuh-alerts-*" under "Index patterns", then click on the "Refresh field list" icon on the top right.
-
-
 
 <!---------- Suricata Integration with Wazuh ---------->
 <details>
@@ -1229,6 +1220,20 @@ Configure **Wazuh** to connect to **Admyral**:
 
 </details>
 
+<!---------- Refresh fields ---------->
+<details>
+<summary>
+<h3>Refresh fields</h3>
+</summary>
+
+To refresh the field list, follow the instructions below:
+
+1. Go to "Dashboards Management" > "Dashboards Management" on the left menu.
+2. Click on "Index Patterns" under "Dashboards Management" on the left menu.
+3. Click on "wazuh-alerts-*" under "Index patterns", then click on the "Refresh field list" icon on the top right.
+
+</details>
+
 
 ---------------------------------------------------------------------------------------------
 
@@ -1870,8 +1875,8 @@ Docker Engine is an open source containerization technology for building and con
 
 ---------------------------------------------------------------------------------------------------
 
-
-## (TODO - update to new version) Admyral Installation on Ubuntu Server using Docker
+## (TODO - update to new version)
+## Admyral Installation on Ubuntu Server using Docker
 
 Admyral is an open-source Cybersecurity Automation & Investigation Assistant powered by AI.
 
