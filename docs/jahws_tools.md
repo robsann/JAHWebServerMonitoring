@@ -1,4 +1,4 @@
-# Web Server Monitoring: Security Tools
+# Security Tools and Web Servers Installation
 
 The Wazuh will be installed using the IP address (`172.16.57.2`) from the internal network and Cassandra and Elasticsearch the localhost IP address (`127.0.0.1`). TheHIve will be listening on port 9000 (`http://0.0.0.0:9000`) and Wazuh will be listening on port 443 (`https://0.0.0.0:443`). The IP address with 0s means that both services can receive connections destined to any of their IP addresses.
 
@@ -8,7 +8,7 @@ The Wazuh will be installed using the IP address (`172.16.57.2`) from the intern
 2. [Suricata Installation on Ubuntu Server](#suricata-installation-on-ubuntu-server)
 3. [TheHive Installation on Ubuntu Server](#thehive-installation-on-ubuntu-server)
 4. [Docker Installation on Ubuntu Server](#docker-installation-on-ubuntu-server)
-4. [Admyral Installation on Ubuntu Server using Docker](#admyral-installation-on-ubunu-server-using-docker)
+4. [Admyral Installation on Ubuntu Server using Docker](#admyral-installation-on-ubuntu-server-using-docker)
 5. [DVWA Installation on Debian](#dvwa-installation-on-debian)
 
 
@@ -442,15 +442,6 @@ Edit the agent configuration file to fix the problem:
 ## Wazuh Integrations
 
 Wazuh Integrations provide seamless connectivity between the Wazuh platform and third-party tools, allowing for enhanced security monitoring and threat detection capabilities. By integrating with various security solutions, Wazuh enables organizations to centralize their security operations and streamline incident response processes.
-
-### Refresh fields
-
-To refresh the field list, follow the instructions below:
-
-1. Go to "Dashboards Management" > "Dashboards Management" on the left menu.
-2. Click on "Index Patterns" under "Dashboards Management" on the left menu.
-3. Click on "wazuh-alerts-*" under "Index patterns", then click on the "Refresh field list" icon on the top right.
-
 
 
 <!---------- Suricata Integration with Wazuh ---------->
@@ -1229,6 +1220,20 @@ Configure **Wazuh** to connect to **Admyral**:
 
 </details>
 
+<!---------- Refresh fields ---------->
+<details>
+<summary>
+<h3>Refresh fields</h3>
+</summary>
+
+To refresh the field list, follow the instructions below:
+
+1. Go to "Dashboards Management" > "Dashboards Management" on the left menu.
+2. Click on "Index Patterns" under "Dashboards Management" on the left menu.
+3. Click on "wazuh-alerts-*" under "Index patterns", then click on the "Refresh field list" icon on the top right.
+
+</details>
+
 
 ---------------------------------------------------------------------------------------------
 
@@ -1870,8 +1875,8 @@ Docker Engine is an open source containerization technology for building and con
 
 ---------------------------------------------------------------------------------------------------
 
-
-## (TODO - update to new version) Admyral Installation on Ubuntu Server using Docker
+## (TODO - update to new version)
+## Admyral Installation on Ubuntu Server using Docker
 
 Admyral is an open-source Cybersecurity Automation & Investigation Assistant powered by AI.
 

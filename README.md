@@ -29,8 +29,6 @@ For individuals interested in cyber security engineering, the following steps ar
 
 - Set up the virtual infrastructure in VirtualBox:
 	- [Virtual Machines installation and configuration step-by-step.](./docs/jahws_vms.md)
-- Install and configure the security tools on the Ubuntu Server virtual machine.
+- Install and configure the security tools on the Ubuntu Server and web servers on the Debian.
 	- [Tools installation and configuration step-by-step.](./docs/jahws_tools.md)
-- Install and configure the vulnerable web servers on the Debian virtual machine.
-	- [Web servers installation and configuration step-by-step](#)
 

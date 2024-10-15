@@ -1,4 +1,4 @@
-# JAH: Web Server Monitoring - Virtual Machines
+# Virtual Environment Set up
 
 This guide outlines the installation and setup of Ubuntu 22.04 and Debian 12.5 on VirtualBox for the JAH: Web Server Monitoring homelab.
 
