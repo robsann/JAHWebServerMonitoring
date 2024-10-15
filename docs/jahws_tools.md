@@ -1,6 +1,6 @@
 # Security Tools and Web Servers Installation
 
-The Wazuh will be installed using the IP address (`172.16.57.2`) from the internal network and Cassandra and Elasticsearch the localhost IP address (`127.0.0.1`). TheHIve will be listening on port 9000 (`http://0.0.0.0:9000`) and Wazuh will be listening on port 443 (`https://0.0.0.0:443`). The IP address with 0s means that both services can receive connections destined to any of their IP addresses.
+This guide provides step-by-step instructions for installing Wazuh 4.8, Suricata 7.0, TheHive 5.2, Docker 27.2, and Admyral 0.x on an Ubunto Server VM. Additionally, it includes instructions for installing DVWA (PHP 7.4 and MySQL 15.1) on a Debian VM.
 
 ## Outline
 
@@ -2022,7 +2022,7 @@ Admyral is an open-source Cybersecurity Automation & Investigation Assistant pow
 
 ## DVWA Installation on Debian
 
-DVWA (Damn Vulnerable Web Application) is a web application designed to help security professionals test their skills and tools in a legal environment. It contains various vulnerabilities for users to exploit and practice their penetration testing techniques.
+DVWA (Damn Vulnerable Web Application) is a PHP/MySQL web application designed to help security professionals test their skills and tools in a legal environment. It contains various vulnerabilities for users to exploit and practice their penetration testing techniques.
 
 
 <!-- Step 1: Download and configure DVWA -->
