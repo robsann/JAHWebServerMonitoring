@@ -9,6 +9,7 @@ This guide provides step-by-step instructions for installing Wazuh 4.8, Suricata
 3. [TheHive Installation on Ubuntu Server](#thehive-installation-on-ubuntu-server)
 4. [Docker Installation on Ubuntu Server](#docker-installation-on-ubuntu-server)
 4. [Admyral Installation on Ubuntu Server using Docker](#admyral-installation-on-ubuntu-server-using-docker)
+5. [Wazuh Integrations](#wazuh-integrations)
 5. [DVWA Installation on Debian](#dvwa-installation-on-debian)
 
 
@@ -118,9 +119,9 @@ Wazuh indexer is a highly scalable full-text search engine and offers advanced s
         ```
     5. File location:
         ```yml
-        config: /etc/wazuh-indexer/opensearch.yml
-        data: /var/lib/wazuh-indexer/
-        logs: /var/lib/wazuh-indexer/
+        /etc/wazuh-indexer/opensearch.yml		# Wazuh config file
+        /var/lib/wazuh-indexer/					# Wazuh data
+        /var/lib/wazuh-indexer/					# Wazuh logs
         ```
 3. Cluster initialization:
     1. Run the Wazuh indexer script to load the new certificate information and start the single-node cluster:
@@ -315,8 +316,8 @@ The Wazuh dashboard is a web interface for mining and visualizing the Wazuh serv
 </summary>
 
 1. Open the Wazuh dashboard on the browser by accessing `https://<server-ip>:443`.
-2. On the Wazuh homepage, click on **Add agent**.
-3. On the first step of Deploy new agent, select **DEB amd64** under LINUX.
+2. On the Wazuh homepage, click on `Add agent`.
+3. On the first step of Deploy new agent, select `DEB amd64` under LINUX.
 4. On Server address, enter the IP address of the server with Wazuh manager installed.
 5. On step four, copy the command and run it on the client machine. It should look similar to the one below:
 	```bash
@@ -340,8 +341,8 @@ The Wazuh dashboard is a web interface for mining and visualizing the Wazuh serv
 
 1. Open the Wazuh dashboard on the browser by accessing `https://<server-ip>:443`.
 2. On the Wazuh homepage, click on any legend label under AGENTS SUMMARY.
-3. Click on **Deploy new agent**.
-3. On the first step of Deploy new agent, select **DEB amd64** under LINUX.
+3. Click on `Deploy new agent`.
+3. On the first step of Deploy new agent, select `DEB amd64` under LINUX.
 4. On Server address, enter the IP address of the server with Wazuh manager installed.
 5. On step four, copy the command and run it on the client machine. It should look similar to the one below:
 	```bash
@@ -439,6 +440,788 @@ Edit the agent configuration file to fix the problem:
 ---------------------------------------------------------------------------------------------------
 
 
+## Suricata Installation on Ubuntu Server
+
+Suricata is an open-source intrusion detection and prevention system that provides real-time network security monitoring and threat detection capabilities. It is designed to protect networks from a wide range of cyber threats and attacks.
+
+
+<!---------- 1. Suricata installation ---------->
+<details>
+<summary>
+<h3>1. Suricata installation</h3>
+</summary>
+
+1. First, install the dependency package, `jq` tool, and add the Suricata PPA repository to Apt:
+	```bash
+	$ sudo apt install software-properties-common jq
+	$ sudo add-apt-repository ppa:oisf/suricata-stable
+	$ sudo apt update
+	```
+2. Then, install the latest stable Suricata:
+	```bash
+	$ sudo apt install suricata
+	```
+3. Check Suricata version:
+	```bash
+	$ sudo suricata --build-info
+	```
+4. Start Suricata service, enable it to start on-boot, and check its running status:
+	```bash
+	$ sudo systemctl start suricata
+	$ sudo systemctl enable suricata
+	$ systemctl status suricata
+	```
+5. Suricata files and directories:
+    1. Suricata configuration file: `/etc/suricata/suricata.yaml`
+    2. Suricata pre-defined rules: `/usr/share/suricata/rules`
+    3. Suricata default rule path: `/var/lib/suricata/rules`
+    5. Suricata log directory: `/var/log/suricata`
+
+</details>
+
+
+<!---------- 2. Basic setup ---------->
+<details>
+<summary>
+<h3>2. Basic setup</h3>
+</summary>
+
+1. To configure Suricata open `suricata.yaml`:
+	```bash
+	$ sudo nano /etc/suricata/suricata.yaml
+	```
+	- Set the parameters below and save:
+	```yaml
+	# Step 1: Inform Suricata about your network
+	vars:
+		# more specific is better for alert accuracy and performance
+		address-groups:
+			HOME_NET: "[192.168.57.0/24,10.0.2.0/24]"
+	...
+	# Step 2: Select outputs to enable
+	# Configure the type of alert (and other) logging you would like.
+	outputs:
+		# Extensible Event Format (nicknamed EVE) event log in JSON format
+		- eve-log:
+			enabled: yes
+			filetype: regular
+			filename: eve.json
+			pcap-file: false
+			community-id: true
+			community-id-seed: 0
+	...
+	# Step 3: configure common capture settings
+	# Linux high speed capture support
+	af-packet:
+		- interface: enp0s8
+			cluster-id: 99
+			cluster-type: cluster_flow
+			defrag: yes
+			use-mmap: yes
+			tpacket-v3: yes
+
+		- interface: enp0s3
+			cluster-id: 98
+			cluster-type: cluster_flow
+			defrag: yes
+			use-mmap: yes
+			tpacket-v3: yes
+	...
+	# Cross platform libcap capture support
+	pcap:
+		- interface: enp0s8
+
+		- interface: enp0s3
+	```
+2. Restart Suricata:
+	```bash
+	$ sudo systemctl restart suricata
+	```
+</details>
+
+
+<!---------- 3. Update Suricata Signatures/Rules ---------->
+<details>
+<summary>
+<h3>3. Update Suricata Signatures/Rules</h3>
+</summary>
+
+1. Run the default mode which fetches the ET Open ruleset:
+	```bash
+	$ sudo suricata-update
+	```
+	- The rules are saved in the `/var/lib/suricata/rules/suricata.rules` file.
+	- Always after modify the Suricata config file `suricata.yaml`, restart the Suricata service and run the `suricata-update`.
+
+</details>
+
+
+<!---------- 4. Running Suricata ---------->
+<details>
+<summary>
+<h3>4. Running Suricata</h3>
+</summary>
+
+1. Check the Suricata log to make sure it is running:
+	```bash
+	$ sudo tail /var/log/suricata/suricata.log
+	```
+	- The last line should say `Engine started` at the end.
+2. Check the `stats.log` file to see statistics:
+	```bash
+	$ sudo tail -f /var/log/suricata/stats.log
+	```
+	- By default it is updated every 8 seconds.
+
+</details>
+
+
+<!---------- 5. Alerting ---------->
+<details>
+<summary>
+<h3>5. Alerting</h3>
+</summary>
+
+1. Let's test the IDS functionality of Suricata with the signature with ID 2100498:
+	```bash
+	alert ip any any -> any any (msg:"GPL ATTACK_RESPONSE id check returned root"; content:"uid=0|28|root|29|"; classtype:bad-unknown; sid:2100498; rev:7; metadata:created_at 2010_09_23, updated_at 2010_09_23;)
+	```
+	- This will allert on any IP traffic that has the content within its payload.
+2. Make sure Suricata service is running:
+	```bash
+	systemctl status suricata
+	```
+3. Run the command below to see the updates to `fast.log`.
+	```bash
+	$ sudo tail -f /var/log/suricata/fast.log
+	```
+4. In another terminal, run `curl` to trigger the rule:
+	```bash
+	$ curl http://testmynids.org/uid/index.html
+	```
+</details>
+
+
+<!---------- 6. EVE Json ---------->
+<details>
+<summary>
+<h3>6. EVE Json</h3>
+</summary>
+
+1. Use `jq` to parse the JSON output:
+	1. Display the alerts:
+		```bash
+		$ sudo tail -f /var/log/suricata/eve.json | jq 'select(.event_type=="alert")'
+		```
+	2. Display the stats:
+		```bash
+		$ sudo tail -f /var/log/suricata/eve.json | jq 'select(.event_type=="stats")|.stats.capture.kernel_packets'
+		$ sudo tail -f /var/log/suricata/eve.json | jq 'select(.event_type=="stats")'
+		```
+</details>
+
+
+<!---------- 7. Suricata files and troubleshooting ---------->
+<details>
+<summary>
+<h3>7. Suricata files and troubleshooting</h3>
+</summary>
+
+1. Suricata files and directories:
+    1. Default location of the Suricata configuration file: `/etc/suricata/suricata.yaml`
+    2. Default Suricata log directory: `/var/log/suricata`
+2. Troubleshooting:
+    1. Look into the `suricata-start.log` and `suricata.log` files for errors and other events during the suricata startup and operation respectively:
+        ```bash
+        $ cat /var/log/suricata/suricata-start.log | grep -Pi "error|fail|warn|info"
+        $ cat /var/log/suricata/suricata.log | grep -Pi "error|fail|warn|info"
+        ```
+</details>
+
+
+<!---------- 8. Suricata docummentaion ---------->
+<details>
+<summary>
+<h3>8. Suricata docummentaion</h3>
+</summary>
+
+1. Suricata User Guide:
+	- [User Guide](https://docs.suricata.io/en/latest/index.html).
+	- [3.2. Binary packages](https://docs.suricata.io/en/latest/install.html#binary-packages)
+	- [5.1. Running as a User Other Than Root](https://docs.suricata.io/en/latest/security.html#running-as-a-user-other-than-root)
+	- [9.1. Rule Management with Suricata-Update](https://docs.suricata.io/en/latest/rule-management/suricata-update.html) on `Rule Management`.
+	- [12.6. Dropping Privileges After Startup](https://docs.suricata.io/en/latest/configuration/dropping-privileges.html) on `Configuration`.
+	- [17. Output](https://docs.suricata.io/en/latest/output/index.html)
+	- [24.1.3. OPTIONS](https://docs.suricata.io/en/latest/manpages/suricata.html#options) on `Man Pages` > `Suricata`.
+3. Suricata-Update 1.3.3 documentation:
+	- [Quick Start](https://suricata-update.readthedocs.io/en/latest/quickstart.html)
+4. Github:
+	- [Evebox](https://github.com/jasonish/evebox)
+
+</details>
+
+
+---------------------------------------------------------------------------------------------------
+
+
+## TheHive Installation on Ubuntu Server
+
+TheHive is a collaborative security and incident response platform that enables organizations to manage and investigate security incidents efficiently. It provides a centralized hub for teams to coordinate and track their response efforts. The steps below describe the standalone installation of an instance of TheHive, where everything is on the same server.
+
+
+<!---------- STEP 1: DEPENDENCIES ---------->
+<details>
+<summary>
+<h3>Step 1: Dependencies</h3>
+</summary>
+
+1. Run the command below to install the dependencies if not already installed:
+    ```bash
+    $ sudo apt install wget gnupg apt-transport-https git ca-certificates ca-certificates-java curl  software-properties-common python3-pip lsb-core
+    ```
+</details>
+
+
+<!---------- STEP 2: JAVA VIRTUAL MACHINE ---------->
+<details>
+<summary>
+<h3>Step 2: Java Virtual Machine</h3>
+</summary>
+
+Install Java Virtual Machine:
+
+1. Add Corretto repository references:
+    ```bash
+    $ wget -qO- https://apt.corretto.aws/corretto.key | sudo gpg --dearmor -o /usr/share/keyrings/corretto.gpg
+    $ echo "deb [signed-by=/usr/share/keyrings/corretto.gpg] https://apt.corretto.aws stable main" |  sudo tee -a /etc/apt/sources.list.d/corretto.sources.list
+    ```
+2. Install Java:
+    ```bash
+    $ sudo apt update
+    $ sudo apt install java-common java-11-amazon-corretto-jdk
+    ```
+3. Set the `JAVA_HOME` environment variable.
+    ```bash
+    $ echo JAVA_HOME="/usr/lib/jvm/java-11-amazon-corretto" | sudo tee -a /etc/environment
+    $ export JAVA_HOME="/usr/lib/jvm/java-11-amazon-corretto"
+    ```
+4. Verify the installation by running:
+    ```bash
+    $ java -version
+    ```
+</details>
+
+
+<!---------- STEP 3: APACHE CASSANDRA ---------->
+<details>
+<summary>
+<h3>Step 3: Apache Cassandra</h3>
+</summary>
+
+Apache Cassandra is a scalable and highly available database.
+
+#### Installation
+
+1. Add Apache Cassandra repository references by downloading the repository keys and add the repository to the Apt sources list:
+    ```bash
+    $ wget -qO -  https://downloads.apache.org/cassandra/KEYS | sudo gpg --dearmor  -o /usr/share/keyrings/cassandra-archive.gpg
+    $ echo "deb [signed-by=/usr/share/keyrings/cassandra-archive.gpg] https://debian.cassandra.apache.org 40x main" |  sudo tee -a /etc/apt/sources.list.d/cassandra.sources.list
+    ```
+2. Install Cassandra package:
+    ```bash
+    $ sudo apt update
+    $ sudo apt install cassandra
+    ```
+- By default, data is stored at `/var/lib/cassandra`
+
+#### Configuration
+
+1. Configure Cassandra by editing the `/etc/cassandra/cassandra.yaml` file:
+    ```bash
+    $ sudo nano /etc/cassandra/cassandra.yaml
+    ```
+    - Set the following parameters:
+    ```yml
+    cluster_name: 'thehive-db'
+    hints_directory: /var/lib/cassandra/hints
+    data_file_directories:
+        - /var/lib/cassandra/data
+    commitlog_directory: /var/lib/cassandra/commitlog
+    saved_caches_directory: /var/lib/cassandra/saved_caches
+    seed_provider:
+        - class_name: org.apache.cassandra.locator.SimpleSeedProvider
+        parameters:
+            # Ex: "<ip1>,<ip2>,<ip3>"
+            - seeds: "127.0.0.1:7000"           # Self for the first node
+    listen_address: 127.0.0.1                   # Address for nodes
+    rpc_address: 127.0.0.1                      # Address for clients
+    ```
+    - `cluster_name` helps identify the Cassandra cluster.
+    - `listen_address` is the IP address of the node used by other nodes within the cluster to communicate.
+    - `rpc_address` is the IP address of the node used by the clients to connect to the Cassandra cluster.
+    - In the `seed_provider` the `seed` parameter is the IP address(es) of the seed node(s) in the cluster.
+    - The directory paths are for storage of hints, data, commit log, and saved caches.
+2. Start and enable Cassandra service:
+    ```bash
+    $ sudo systemctl start cassandra.service
+    $ sudo systemctl enable cassandra.service
+    ```
+2. To remove existing data and restart Cassandra, run the commands below:
+    ```bash
+    $ sudo systemctl stop cassandra.service
+    $ sudo rm -rf /var/lib/cassandra/*
+    $ sudo systemctl start cassandra.service
+    $ sudo systemctl status cassandra.service
+    ```
+- By default, Cassandra listens on the following ports:
+    - 7000/tcp (inter-node)
+    - 9042/tcp (client)
+    - 7199
+    - 46315
+
+</details>
+
+
+<!---------- STEP 4: ELASTICSEARCH ---------->
+<details>
+<summary>
+<h3>Step 4: Elasticsearch</h3>
+</summary>
+
+Elasticsearch is a robust data indexing and search engine. It is used by TheHive to manage data indicies efficiently.
+
+#### Installation
+
+1. Add Elasticsearch repository keys and dependency package:
+    ```bash
+    $ wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch |  sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+    $ sudo apt-get install apt-transport-https
+    ```
+2. Add the DEB repository of Elasticsearch:
+    ```bash
+    $ echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/7.x/apt stable main" |  sudo tee /etc/apt/sources.list.d/elastic-7.x.list
+    ```
+3. Update the package manager and install Elasticsearch package:
+    ```bash
+    $ sudo apt update
+    $ sudo apt install elasticsearch
+    ```
+
+#### Configuration
+
+1. Configure Elasticsearch by editing the `/etc/elasticsearch/elasticsearch.yml` file:
+    ```bash
+    $ sudo nano /etc/elasticsearch/elasticsearch.yml
+    ```
+    - Set the following parameters:
+    ```yml
+    # Cluster
+    cluster.name: thehive-engine
+    http.host: 127.0.0.1
+    http.port: 9201
+    transport.host: 127.0.0.1
+    transport.port: 9301
+    ...
+    # Paths
+    path.logs: "/var/log/elasticsearch"
+    path.data: "/var/lib/elasticsearch"
+    ...
+    thread_pool.search.queue_size: 100000
+    xpack.security.enabled: false
+    script.allowed_types: "inline,stored"
+    ```
+2. Create the file below with the custom JVM options:
+    ```bash
+    nano /etc/elasticsearch/jvm.options.d/jvm.options
+    ```
+    - Set the following parameters:
+    ```yml
+    -Dlog4j2.formatMsgNoLookups=true
+    -Xms2g
+    -Xmx2g
+    ```
+3. Start and enable Elasticsearch service:
+    ```bash
+    $ sudo systemctl start elasticsearch
+    $ sudo systemctl enable elasticsearch
+    $ sudo systemctl status elasticsearch
+    ```
+4. To remove the existing data and restart Elasticsearch service, run the commands below:
+    ```bash
+    $ sudo systemctl stop elasticsearch
+    $ sudo rm -rf /var/lib/elasticsearch/*
+    $ sudo systemctl start elasticsearch
+    $ sudo systemctl status elasticsearch
+    ```
+- Elasticsearch will be listening on the following ports:
+    - 9201 (http)
+    - 9301
+
+</details>
+
+
+<!---------- STEP 5: FILE STORAGE ---------->
+<details>
+<summary>
+<h3>Step 5: File storage</h3>
+</summary>
+
+1. To store files on the local filesystem, start by choosing the dedicated folder (by default `/opt/thp/thehive/files`):
+    ```bash
+    $ sudo mkdir -p /opt/thp/thehive/files
+    ```
+    - This path will be utilized in the configuration of TheHive.
+2. After installing TheHive, ensure the user thehive owns the chosen path for storing files:
+    ```bash
+    $ sudo chown -R thehive:thehive /opt/thp/thehive/files
+    $ ls -lh /opt/thp/thehive/
+    ```
+</details>
+
+
+<!---------- STEP 6: THEHIVE ---------->
+<details>
+<summary>
+<h3>Step 6: TheHive</h3>
+</summary>
+
+TheHive is a scalable Security Incident Response Platform integrated with MISP (Malware Information Sharing Platform) for promptly investigating and addressing security incidents.
+
+#### Installation
+
+1. Add the TheHive repository keys and the repository to the Apt sources list::
+    ```bash
+    $ wget -O- https://archives.strangebee.com/keys/strangebee.gpg | sudo gpg --dearmor -o /usr/share/keyrings/strangebee-archive-keyring.gpg
+    $ echo 'deb [signed-by=/usr/share/keyrings/strangebee-archive-keyring.gpg] https://deb.strangebee.com thehive-5.3 main' | sudo tee -a /etc/apt/sources.list.d/strangebee.list
+    ```
+2. Update the package manager and install the TheHive package:
+    ```bash
+    $ sudo apt update
+    $ sudo apt install thehive
+    ```
+
+#### Configuration
+
+1. Configure TheHive by editing the `/etc/thehive/application.conf` file:
+    ```bash
+    $ sudo nano /etc/thehive/application.conf
+    ```
+    - Set the following parameters:
+    ```yml
+    # Cassandra and Elasticsearch configuration
+    db.janusgraph {
+        storage {
+            backend = cql
+            hostname = ["127.0.0.1"]
+            cql {
+                cluster-name = thehive-db
+                keyspace = thehive
+            }
+        }
+        index.search {
+            backend = elasticsearch
+            hostname = ["127.0.0.1:9201"]
+            index-name = thehive-engine
+    # Attachment storage configuration
+    storage {
+        provider = localfs
+        localfs.location = /opt/thp/thehive/files
+    }
+    # Service configuration
+    application.baseUrl = "http://0.0.0.0:9000"
+    play.http.context = "/"
+    # Additional modules
+    scalligraph.modules += org.thp.thehive.connector.cortex.CortexModule
+    scalligraph.modules += org.thp.thehive.connector.misp.MispModule
+    ```
+2. Ensure thehive user has permissions on the default file storage location:
+    ```bash
+    $ ls -lhd /opt/thp/thehive/files
+    ```
+    - Otherwise change the directory ownership:
+    ```bash
+    $ chown -R thehive:thehive /opt/thp/thehive/files
+    ```
+3. Start and enable TheHive:
+    ```bash
+    $ sudo systemctl start thehive
+    $ sudo systemctl enable thehive
+    $ systemctl status thehive
+    ```
+</details>
+
+
+<!---------- Create Organization and User Accounts ---------->
+<details>
+<summary>
+<h3>Create Organization and User Accounts</h3>
+</summary>
+
+Sign in into TheHive.
+
+### Create Organisation
+
+1. Go to `Organisations` and click on the `plus sign` to create one if you already don't have one.
+	1. Fill the fields on `Adding an Organisation`.
+		- `Name:` JAHWS
+		- `Description:` SOC Automation Project
+		- `Tasks sharing rule:` manual
+		- `Observables sharing rule:` manual
+	2. Then, click `Confirma`.
+
+### Create User Accounts
+
+1. On `Organisations`, click on the organization name.
+2. On the organisaton page, under `Users` click on the `plus sign` to add an user.
+	1. Fill the fields on `Adding a User`
+		- `Type:` Normal
+		- `Organisation:` JAHWS
+		- `Login:` user1@jah.com
+		- `Name:` User1
+		- `Profile:` Analyst
+	2. Then, click `Confirm`.
+3. To add a second user, click on the `plus sign` again user `Users`.
+	1. Fill the fields on `Adding a User`
+		- `Type:` Service
+		- `Organisation:` JAHWS
+		- `Login:` shuffle@jah.com
+		- `Name:` User Shuffle
+		- `Profile:` Analyst
+	2. Then, click `Confirm`.
+
+</details>
+
+
+<!---------- STATUS CHECK ---------->
+<details>
+<summary>
+<h3>Status check</h3>
+</summary>
+
+Check if Cassandra, Elasticsearch, and TheHive services are running:
+```bash
+$ systemctl status cassandra
+$ systemctl status elasricsearch
+$ systemctl status thehive
+```
+`Note:` Any modification on the configuration file of Cassandra, Elasticsearch, or TheHive should follow a reset of the three services with TheHive last.
+
+</details>
+
+
+<!---------- TROUBLESHOOTING ---------->
+<details>
+<summary>
+<h3>Troubleshooting</h3>
+</summary>
+
+1. Check possible issues reported in the Cassandra log file:
+    ```bash
+    $ cat /var/log/cassandra/system.log | grep -E "ERROR|Caused"
+    ```
+2. Check possible issues reported in the Elasticsearch log file:
+    ```bash
+    $ sudo cat /var/log/elasticsearch/<cluster-name>.log | grep -E "ERROR|Caused"
+    ```
+3. Check possible issues reported in the TheHive log file:
+    ```bash
+    $ sudo cat /var/log/thehive/applicatin.log | grep -E "ERROR|Caused"
+    ```
+</details>
+
+
+---------------------------------------------------------------------------------------------------
+
+
+## Docker Installation on Ubuntu Server
+
+Docker Engine is an open source containerization technology for building and containerizing applications, which acts as a client-server application.
+
+
+<!-- Installation -->
+<details>
+<summary>
+<h3>Installation</h3>
+</summary>
+
+1. Install dependencies:
+	```bash
+	$ $ sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
+	```
+2. Add the Docker repository:
+	```bash
+	$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+	$ echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+	```
+2. Install Docker Community Edition:
+	```bash
+	$ sudo apt update
+	$ sudo apt install docker-ce
+	```
+3. Start and enable Docker service:
+	```bash
+	$ sudo systemctl start docker
+	$ sudo systemctl enable docker
+	```
+4. Check the installation by verifying the Docker version:
+	```bash
+	$ docker --version
+	```
+5. Test Docker by running the "Hello, World!" container:
+	```bash
+	$ sudo docker run hello-world
+	```
+6. (TODO) Permissions:
+
+</details>
+
+---------------------------------------------------------------------------------------------------
+
+## (TODO - update to new version)
+## Admyral Installation on Ubuntu Server using Docker
+
+Admyral is an open-source Cybersecurity Automation & Investigation Assistant powered by AI.
+
+
+<!-- Installation -->
+<details>
+<summary>
+<h3>Installation</h3>
+</summary>
+
+1. Clone the repository:
+    ```bash
+    $ git clone https://github.com/Admyral-Security/admyral.git
+    ```
+
+2. Change directory to docker self-hosting:
+    ```bash
+    $ cd admyral/deploy/self-hosting
+    ```
+
+3. Copy and edit the env vars:
+    ```bash
+    $ cp .env.example .env
+    $ nano .env
+    ```
+    - Set the parameters below:
+    ```yaml
+    ADMYRAL_SITE_URL="http://192.168.57.3:3000"
+    ASMYRAL_WORKFLOW_RUNNER_API_URL="http://192.168.57.3:5000"
+    SUPABASE_URL="http://192.168.57.3:8000"
+    ```
+4. Edit the docker-compose.yml file:
+	```bash
+	$ nano docker-compose.yml
+	```
+	- Set the parameters below:
+	```yml
+    services:
+    	workflow-runner:
+    		# Image requested linux/amd64
+    		image: admyralai/workflow-runner:latest
+    		# Use image for linux/amd64 platform
+
+        web:
+            healthcheck:
+                test:
+                    [
+                        ...
+                        # Use IP address instead of domain name
+                        "http://127.0.0.1:3000/health"
+                    ]
+        studio:
+            healthcheck:
+                test:
+                    [
+                        ...
+                        '"require(''http'').get(''http://'' + process.env.HOSTNAME + '':3000/api/profile'', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"'
+					]
+				timeout: 15s
+		storage:
+			healthcheck:
+					[
+						...
+						# Use IP address instead of domain name
+						"http://127.0.0.1:5000/status"
+					]
+	```
+4. Start the services in detached mode, then list all containers:
+    ```bash
+    $ sudo docker compose up -d
+    $ sudo docker ps -a
+    ```
+5. If it fails, restart the containers running the command below:
+    ```bash
+    $ sudo docker compose restart
+    ```
+</details>
+
+
+<!-- Install Admyral using pip -->
+<details>
+<summary>
+<h3>Install Admyral using pip</h3>
+</summary>
+
+### Step 1: Installing and Starting Admyral
+
+1. Install Admyrall using pip and Python 3.12:
+	```bash
+	python3.12 -m pip install admyral
+	```
+2. Start Admyral:
+	```bash
+	admyral up
+	```
+### Step 2: Tool and Secret Setup
+
+</details>
+
+
+<!-- Troubleshooting -->
+<details>
+<summary>
+<h3>Troubleshooting</h3>
+</summary>
+
+1. Install Python 3.12 and pip for python 3.12
+	```BASH
+	sudo apt update && sudo apt upgrade
+	sudo apt install software-properties-common
+	sudo add-apt-repository ppa:deadsnakes/ppa
+	sudo apt update
+	sudo apt install python3.12
+	sudo python3.12 --version
+	curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12
+	python3.12 -m pip --version
+	```
+2. AttributeError: module 'lib' has no attribute 'X509_V_FLAG_NOTIFY_POLICY'. Did you mean: 'X509_V_FLAG_EXPLICIT_POLICY'?
+	- Solution: Upgrade the latest version of PyOpenSSL.
+		```bash
+		python3.12 -m pip install pip --upgrade
+		python3.12 -m pip install pyopenssl --upgrade
+		```
+</details>
+
+
+<!-- References -->
+<details>
+<summary>
+<h3>References</h3>
+</summary>
+
+- GitHub: https://github.com/Admyral-Security/admyral
+- How to contribute: https://github.com/Admyral-Security/admyral/blob/main/CONTRIBUTING.md
+- Cloud Version: https://admyral.dev/login
+- Discord: https://discord.gg/GqbJZT9Hbf
+
+</details>
+
+
+---------------------------------------------------------------------------------------------------
+
+
 ## Wazuh Integrations
 
 Wazuh Integrations provide seamless connectivity between the Wazuh platform and third-party tools, allowing for enhanced security monitoring and threat detection capabilities. By integrating with various security solutions, Wazuh enables organizations to centralize their security operations and streamline incident response processes.
@@ -495,30 +1278,29 @@ Wazuh Integrations provide seamless connectivity between the Wazuh platform and 
 
 ### Create User Account on TheHive
 
-1. On **Organisations**, click on the organization name.
-2. On the organisaton page, under **Users** click on the **plus sign** to add an user.
-	1. Fill the fields on **Adding a User**
-		- **Type:** Normal
-		- **Organisation:** JASHWS
-		- **Login:** admin@jah.com
-		- **Name:** Admin
-		- **Profile:** org-admin
-	2. Then, click **Confirm**.
-	3. To set the passowrd of the created **Admin** user, click on **Preview**:
-		1. Under **Password**, click on **Set a new password**.
-		2. Type the passowrd and click on **Confirm**.
-3. Create an user with the analyst profile to generate the API key. On the organisaton page, under **Users** click on the **plus sign** to add an user.
-	1. Fill the fields on **Adding a User**
-		- **Type:** Normal
-		- **Organisation:** JASHWS
-		- **Login:** user1@jah.com
-		- **Name:** User1
-		- **Profile:** Analyst
-	2. Then, click **Confirm**.
-	3. To create the API kei, click on **Preview** on the created user:
-		1. Under **API Key**, click on **Create**.
+1. On `Organisations`, click on the organization name.
+2. On the organisaton page, under `Users` click on the `plus sign` to add an user.
+	1. Fill the fields on `Adding a User`
+		- `Type:` Normal
+		- `Organisation:` JAHWS
+		- `Login:` admin@jah.com
+		- `Name:` Admin
+		- `Profile:` org-admin
+	2. Then, click `Confirm`.
+	3. To set the passowrd of the created `Admin` user, click on `Preview`:
+		1. Under `Password`, click on `Set a new password`.
+		2. Type the passowrd and click on `Confirm`.
+3. Create an user with the analyst profile to generate the API key. On the organisaton page, under `Users` click on the `plus sign` to add an user.
+	1. Fill the fields on `Adding a User`
+		- `Type:` Normal
+		- `Organisation:` JAHWS
+		- `Login:` user1@jah.com
+		- `Name:` User1
+		- `Profile:` Analyst
+	2. Then, click `Confirm`.
+	3. To create the API kei, click on `Preview` on the created user:
+		1. Under `API Key`, click on `Create`.
 		2. Copy the created API key for future use.
-		- dsv6aWgxlPbibBDtZCgDDPNSj87ltVvs
 
 ### Configure Wazuh manager
 
@@ -691,7 +1473,7 @@ Wazuh Integrations provide seamless connectivity between the Wazuh platform and 
 		except Exception:
 		logger.exception('EGOR')
 	```
-4. Create a bash script as `/var/ossec/integrations/custom-w2thive`. This will properly execute the .py script created in the previous step:
+4. Create a bash script as `/var/ossec/integrations/custom-w2thive`. This will properly execute the `.py` script created in the previous step:
 	```bash
 	$ sudo nano /var/ossec/integrations/custom-w2thive
 	```
@@ -753,15 +1535,14 @@ Wazuh Integrations provide seamless connectivity between the Wazuh platform and 
 	…
 	<integration>
 		<name>custom-w2thive</name>
-		<hook_url>http://<TheHive_Server_IP>:9000</hook_url>
-		<api_key><TheHive_User_API_Key></api_key>
+		<hook_url>http://<THEHIVE_SERVER_IP>:9000</hook_url>
+		<api_key><THEHIVE_USER_API_KEY></api_key>
 		<alert_format>json</alert_format>
 	</integration>
 	…
 	</ossec_config>
 	```
-	- Where `<TheHive_Server_IP>` is the IP a
-f the TheHive user.
+	- Substitute the `<THEHIVE_SERVER_IP>` and `<THEHIVE_USER_API_KEY>` by its respective values.
 7. Then, restart the Wazuh manager:
 	```bash
 	$ sudo systemctl restart wazuh-manager
@@ -775,7 +1556,7 @@ f the TheHive user.
 <h3>Admyral integration with Wazuh</h3>
 </summary>
 
-Configure **Wazuh** to connect to **Admyral**:
+Configure `Wazuh` to connect to `Admyral`:
 
 1. First, create a bash script called `custom-admryral` at the `/var/ossec/integrations/` directory. This will properly execute the `custom-admyral.py` script, which will be responsible for the API request:
 	```bash
@@ -1137,6 +1918,7 @@ Configure **Wazuh** to connect to **Admyral**:
 	…
 	</ossec_config>
 	```
+	- Substitute `<ADMYRAL_IP>`, `<HOOD_ID>`, and `<HOOK_SECRET>` by its respective values.
 5. Then, restart the Wazuh manager:
 	```bash
 	$ sudo systemctl restart wazuh-manager
@@ -1178,17 +1960,17 @@ Configure **Wazuh** to connect to **Admyral**:
 		The following files were created and need either protection or removal (shred on the CLI)
 		/home/user/mysql.txt
 		Contents:
-		Admin (root) DB Password: e8c75d8d78a2e01281b42e2c0d4ac668a333de31c56283cab695a69eb6d31330
-		User  (misp) DB Password: 2cf81c7b9bdb0a704785b5da7da106e3ad9a1b04e6d8306fcfbd59d4c9e33d17
+		Admin (root) DB Password: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+		User  (misp) DB Password: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 		/home/user/MISP-authkey.txt
 		Contents:
-		Authkey: DMVZLTkH9BOUo7DAX5pKbWaCT8TBFnqd81gnTdgK
+		Authkey: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 		----------------------------------------------------------------------------------------------
 		The LOCAL system credentials:
 		User: user
-		Password: 29fefbbfc917e97504a2eb60f1fd50f3c4ada637b5033c8dcf00736f24908827 # Or the password you used of your custom user
+		Password: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx # Or the password you used of your custom user
 		----------------------------------------------------------------------------------------------
-		GnuPG Passphrase is: e9689f40df4b2628bb834c9e53568e4f8efc2d90fb469dfab222cfd28c5ff812
+		GnuPG Passphrase is: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 		----------------------------------------------------------------------------------------------
 		To enable outgoing mails via postfix set a permissive SMTP server for the domains you want to contact:
 
@@ -1203,20 +1985,84 @@ Configure **Wazuh** to connect to **Admyral**:
 		$ sudo ufw allow 80/tcp
 		$ sudo ufw allow 443/tcp
 		```
-2. Create new admin password:
-	1. Browse to https://<"your misp instance ip">/users/login
-		- Username: admin@admin.test
-		- Password: admin
+2. Create new `admin password`:
+	1. Browse to `https://<MISP_IP_ADDR>/users/login`
+		- `Username:` admin@admin.test
+		- `Password:` admin
 		- Enter new password
 3. To reset password run the command below:
 	```bash
-	/var/www/MISP/app/Console/cake user change_pw [email] [password]
+	$ /var/www/MISP/app/Console/cake user change_pw [email] [password]
 	```
 4. Create an organization:
-	1. Select **Administration** > **Add Organisations**.
-	2. Enter **ORG name** into **Organisation Identifier**.
-	3. Select **Generate UUID**.
-	4. Select **Submit** at the bottom.
+	1. Select `Administration` > `Add Organisations`.
+	2. Enter `ORG name` into `Organisation Identifier`.
+	3. Click on `Generate UUID`.
+	4. Click on `Submit` at the bottom.
+5. Click on `View Organisation` on the left menu to visualize the organization information.
+	1. Under `Users index`, click on the `edit` icon under `Actions`.
+	2. Edit your email address.
+	3. Generate the PGP key and paste it on the `PGP key` box.
+		- MISP stores the public key at `/var/www/MISP/app/webroot/gpg.asc`
+		1. Generate a new GPG key pair for the MISP admin user using the command below:
+			```bash
+			$ gpg --full-generate-key misp_admin
+			```
+		2. To list the keys use the command below:
+			```bash
+			$ gpg --list-keys
+			```
+		3. Save the public key in plain text encoding:
+			```bash
+			$ gpg --export --armor --output misp_admin-gpg.pub misp_admin
+			```
+		4. Copy the publick key content and paste it on the `PGP key` box:
+			```bash
+			$ cat misp_admin-gpg.pub
+			```
+	4. Check the `Terms accepted` box.
+	5. Confirm your password and click on `Edit user`.
+6. Import the defaults feed-metadata from the MISP github repo:
+	1. Go to `https://github.com/MISP/MISP/blob/2.5/app/files/feed-metadata/defaults.json`
+	2. Copy the content of the `defaults.json` file.
+	3. Go to the local MISP UI, on the top menu click on `Sync Actions` > `Feeds`.
+	4. On the left menu, click on `Import Feeds from JSON`.
+	5. Paste the content of `defaults.json` on the JSON box and click on `Add`.
+	6. Enable the feeds by selecting them and clicking on `Enable selected`.
+7. Create a cronjob to fetch and store all feed data:
+	1. Go to the local MISP UI, on the top menu click on `Administration` > `List Auth Keys`.
+	2. Click on `Add authentication key`.
+	3. Select the `User`, on `Comment` type CRONJOB, then click on `Submit`.
+	4. Copy the key and click on `I have noted down my key, take me back now`.
+	5. Create the cronjob:
+		1. Run the command below to edit the crontab file:
+			```bash
+			$ crontab -e
+			```
+		2. Select the text editor and paste the cron job below at the bottom of the file using your `<MISP_API_KEY>` and `MISP_IP_ADDR`.
+			```yml
+			0 1 * * * /usr/bin/curl -XPOST --insecure --header "Authorization: <MISP_API_KEY>" --header "Accept: application/json" --header "Content-Type: application/json" https://<MISP_IP_ADDR>/feeds/fetchFromAllFeeds
+			```
+		3. List the crontab file:
+			```bash
+			$ crontab -l
+			```
+		4. To execute the cron job command now, run the command below using your `MISP_API_KEY` and `MISP_IP_ADDR`:
+			```bash
+			/usr/bin/curl -XPOST --insecure --header "Authorization: <MISP_API_KEY>" --header "Accept: application/json" --header "Content-Type: application/json" https://<MISP_IP_ADDR>/feeds/fetchFromAllFeeds
+			```
+			- It should return `Pull queued for background execution.` as result.
+		5. On the local MISP UI, go to `Administration` > `Jobs` to see the data being fetched.
+8. Monitor resource usage:
+	1. Monitor CPU and Memory:
+		```bash
+		$ htop
+		```
+	2. Monitor disk performance:
+		```bash
+		$ sudo iostat -x -d 5 2
+		```
+
 
 </details>
 
@@ -1228,796 +2074,14 @@ Configure **Wazuh** to connect to **Admyral**:
 
 To refresh the field list, follow the instructions below:
 
-1. Go to "Dashboards Management" > "Dashboards Management" on the left menu.
-2. Click on "Index Patterns" under "Dashboards Management" on the left menu.
-3. Click on "wazuh-alerts-*" under "Index patterns", then click on the "Refresh field list" icon on the top right.
+1. Go to `Dashboards Management` > `Dashboards Management` on the left menu.
+2. Click on `Index Patterns` under `Dashboards Management` on the left menu.
+3. Click on `wazuh-alerts-*` under `Index patterns`, then click on the `Refresh field list` icon on the top right.
 
 </details>
 
 
 ---------------------------------------------------------------------------------------------
-
-
-## Suricata Installation on Ubuntu Server
-
-Suricata is an open-source intrusion detection and prevention system that provides real-time network security monitoring and threat detection capabilities. It is designed to protect networks from a wide range of cyber threats and attacks.
-
-
-<!---------- 1. Suricata installation ---------->
-<details>
-<summary>
-<h3>1. Suricata installation</h3>
-</summary>
-
-1. First, install the dependency package, `jq` tool, and add the Suricata PPA repository to Apt:
-	```bash
-	$ sudo apt install software-properties-common jq
-	$ sudo add-apt-repository ppa:oisf/suricata-stable
-	$ sudo apt update
-	```
-2. Then, install the latest stable Suricata:
-	```bash
-	$ sudo apt install suricata
-	```
-3. Check Suricata version:
-	```bash
-	$ sudo suricata --build-info
-	```
-4. Start Suricata service, enable it to start on-boot, and check its running status:
-	```bash
-	$ sudo systemctl start suricata
-	$ sudo systemctl enable suricata
-	$ systemctl status suricata
-	```
-5. Suricata files and directories:
-    1. Suricata configuration file: `/etc/suricata/suricata.yaml`
-    2. Suricata pre-defined rules: `/usr/share/suricata/rules`
-    3. Suricata default rule path: `/var/lib/suricata/rules`
-    5. Suricata log directory: `/var/log/suricata`
-
-</details>
-
-
-<!---------- 2. Basic setup ---------->
-<details>
-<summary>
-<h3>2. Basic setup</h3>
-</summary>
-
-1. To configure Suricata open `suricata.yaml`:
-	```bash
-	$ sudo nano /etc/suricata/suricata.yaml
-	```
-	- Set the parameters below and save:
-	```yaml
-	# Step 1: Inform Suricata about your network
-	vars:
-		# more specific is better for alert accuracy and performance
-		address-groups:
-			HOME_NET: "[192.168.57.0/24,10.0.2.0/24]"
-	...
-	# Step 2: Select outputs to enable
-	# Configure the type of alert (and other) logging you would like.
-	outputs:
-		# Extensible Event Format (nicknamed EVE) event log in JSON format
-		- eve-log:
-			enabled: yes
-			filetype: regular
-			filename: eve.json
-			pcap-file: false
-			community-id: true
-			community-id-seed: 0
-	...
-	# Step 3: configure common capture settings
-	# Linux high speed capture support
-	af-packet:
-		- interface: enp0s8
-			cluster-id: 99
-			cluster-type: cluster_flow
-			defrag: yes
-			use-mmap: yes
-			tpacket-v3: yes
-
-		- interface: enp0s3
-			cluster-id: 98
-			cluster-type: cluster_flow
-			defrag: yes
-			use-mmap: yes
-			tpacket-v3: yes
-	...
-	# Cross platform libcap capture support
-	pcap:
-		- interface: enp0s8
-
-		- interface: enp0s3
-	```
-2. Restart Suricata:
-	```bash
-	$ sudo systemctl restart suricata
-	```
-</details>
-
-
-<!---------- 3. Update Suricata Signatures/Rules ---------->
-<details>
-<summary>
-<h3>3. Update Suricata Signatures/Rules</h3>
-</summary>
-
-1. Run the default mode which fetches the ET Open ruleset:
-	```bash
-	$ sudo suricata-update
-	```
-	- The rules are saved in the `/var/lib/suricata/rules/suricata.rules` file.
-	- Always after modify the Suricata config file `suricata.yaml`, restart the Suricata service and run the `suricata-update`.
-
-</details>
-
-
-<!---------- 4. Running Suricata ---------->
-<details>
-<summary>
-<h3>4. Running Suricata</h3>
-</summary>
-
-1. Check the Suricata log to make sure it is running:
-	```bash
-	$ sudo tail /var/log/suricata/suricata.log
-	```
-	- The last line should say **Engine started** at the end.
-2. Check the `stats.log` file to see statistics:
-	```bash
-	$ sudo tail -f /var/log/suricata/stats.log
-	```
-	- By default it is updated every 8 seconds.
-
-</details>
-
-
-<!---------- 5. Alerting ---------->
-<details>
-<summary>
-<h3>5. Alerting</h3>
-</summary>
-
-1. Let's test the IDS functionality of Suricata with the signature with ID 2100498:
-	```bash
-	alert ip any any -> any any (msg:"GPL ATTACK_RESPONSE id check returned root"; content:"uid=0|28|root|29|"; classtype:bad-unknown; sid:2100498; rev:7; metadata:created_at 2010_09_23, updated_at 2010_09_23;)
-	```
-	- This will allert on any IP traffic that has the content within its payload.
-2. Make sure Suricata service is running:
-	```bash
-	systemctl status suricata
-	```
-3. Run the command below to see the updates to `fast.log`.
-	```bash
-	$ sudo tail -f /var/log/suricata/fast.log
-	```
-4. In another terminal, run `curl` to trigger the rule:
-	```bash
-	$ curl http://testmynids.org/uid/index.html
-	```
-</details>
-
-
-<!---------- 6. EVE Json ---------->
-<details>
-<summary>
-<h3>6. EVE Json</h3>
-</summary>
-
-1. Use `jq` to parse the JSON output:
-	1. Display the alerts:
-		```bash
-		$ sudo tail -f /var/log/suricata/eve.json | jq 'select(.event_type=="alert")'
-		```
-	2. Display the stats:
-		```bash
-		$ sudo tail -f /var/log/suricata/eve.json | jq 'select(.event_type=="stats")|.stats.capture.kernel_packets'
-		$ sudo tail -f /var/log/suricata/eve.json | jq 'select(.event_type=="stats")'
-		```
-</details>
-
-
-<!---------- 7. Suricata files and troubleshooting ---------->
-<details>
-<summary>
-<h3>7. Suricata files and troubleshooting</h3>
-</summary>
-
-1. Suricata files and directories:
-    1. Default location of the Suricata configuration file: `/etc/suricata/suricata.yaml`
-    2. Default Suricata log directory: `/var/log/suricata`
-2. Troubleshooting:
-    1. Look into the `suricata-start.log` and `suricata.log` files for errors and other events during the suricata startup and operation respectively:
-        ```bash
-        $ cat /var/log/suricata/suricata-start.log | grep -Pi "error|fail|warn|info"
-        $ cat /var/log/suricata/suricata.log | grep -Pi "error|fail|warn|info"
-        ```
-</details>
-
-
-<!---------- 8. Suricata docummentaion ---------->
-<details>
-<summary>
-<h3>8. Suricata docummentaion</h3>
-</summary>
-
-1. Suricata User Guide:
-	- [User Guide](https://docs.suricata.io/en/latest/index.html).
-	- [3.2. Binary packages](https://docs.suricata.io/en/latest/install.html#binary-packages)
-	- [5.1. Running as a User Other Than Root](https://docs.suricata.io/en/latest/security.html#running-as-a-user-other-than-root)
-	- [9.1. Rule Management with Suricata-Update](https://docs.suricata.io/en/latest/rule-management/suricata-update.html) on **Rule Management**.
-	- [12.6. Dropping Privileges After Startup](https://docs.suricata.io/en/latest/configuration/dropping-privileges.html) on **Configuration**.
-	- [17. Output](https://docs.suricata.io/en/latest/output/index.html)
-	- [24.1.3. OPTIONS](https://docs.suricata.io/en/latest/manpages/suricata.html#options) on **Man Pages** > **Suricata**.
-3. Suricata-Update 1.3.3 documentation:
-	- [Quick Start](https://suricata-update.readthedocs.io/en/latest/quickstart.html)
-4. Github:
-	- [Evebox](https://github.com/jasonish/evebox)
-
-</details>
-
-
----------------------------------------------------------------------------------------------------
-
-
-## TheHive Installation on Ubuntu Server
-
-TheHive is a collaborative security and incident response platform that enables organizations to manage and investigate security incidents efficiently. It provides a centralized hub for teams to coordinate and track their response efforts. The steps below describe the standalone installation of an instance of TheHive, where everything is on the same server.
-
-
-<!---------- STEP 1: DEPENDENCIES ---------->
-<details>
-<summary>
-<h3>Step 1: Dependencies</h3>
-</summary>
-
-1. Run the command below to install the dependencies if not already installed:
-    ```bash
-    $ sudo apt install wget gnupg apt-transport-https git ca-certificates ca-certificates-java curl  software-properties-common python3-pip lsb-core
-    ```
-</details>
-
-
-<!---------- STEP 2: JAVA VIRTUAL MACHINE ---------->
-<details>
-<summary>
-<h3>Step 2: Java Virtual Machine</h3>
-</summary>
-
-Install Java Virtual Machine:
-
-1. Add Corretto repository references:
-    ```bash
-    $ wget -qO- https://apt.corretto.aws/corretto.key | sudo gpg --dearmor -o /usr/share/keyrings/corretto.gpg
-    $ echo "deb [signed-by=/usr/share/keyrings/corretto.gpg] https://apt.corretto.aws stable main" |  sudo tee -a /etc/apt/sources.list.d/corretto.sources.list
-    ```
-2. Install Java:
-    ```bash
-    $ sudo apt update
-    $ sudo apt install java-common java-11-amazon-corretto-jdk
-    ```
-3. Set the `JAVA_HOME` environment variable.
-    ```bash
-    $ echo JAVA_HOME="/usr/lib/jvm/java-11-amazon-corretto" | sudo tee -a /etc/environment
-    $ export JAVA_HOME="/usr/lib/jvm/java-11-amazon-corretto"
-    ```
-4. Verify the installation by running:
-    ```bash
-    $ java -version
-    ```
-</details>
-
-
-<!---------- STEP 3: APACHE CASSANDRA ---------->
-<details>
-<summary>
-<h3>Step 3: Apache Cassandra</h3>
-</summary>
-
-Apache Cassandra is a scalable and highly available database.
-
-#### Installation
-
-1. Add Apache Cassandra repository references by downloading the repository keys and add the repository to the Apt sources list:
-    ```bash
-    $ wget -qO -  https://downloads.apache.org/cassandra/KEYS | sudo gpg --dearmor  -o /usr/share/keyrings/cassandra-archive.gpg
-    $ echo "deb [signed-by=/usr/share/keyrings/cassandra-archive.gpg] https://debian.cassandra.apache.org 40x main" |  sudo tee -a /etc/apt/sources.list.d/cassandra.sources.list
-    ```
-2. Install Cassandra package:
-    ```bash
-    $ sudo apt update
-    $ sudo apt install cassandra
-    ```
-- By default, data is stored at `/var/lib/cassandra`
-
-#### Configuration
-
-1. Configure Cassandra by editing the `/etc/cassandra/cassandra.yaml` file:
-    ```bash
-    $ sudo nano /etc/cassandra/cassandra.yaml
-    ```
-    - Set the following parameters:
-    ```yml
-    cluster_name: 'thehive-db'
-    hints_directory: /var/lib/cassandra/hints
-    data_file_directories:
-        - /var/lib/cassandra/data
-    commitlog_directory: /var/lib/cassandra/commitlog
-    saved_caches_directory: /var/lib/cassandra/saved_caches
-    seed_provider:
-        - class_name: org.apache.cassandra.locator.SimpleSeedProvider
-        parameters:
-            # Ex: "<ip1>,<ip2>,<ip3>"
-            - seeds: "127.0.0.1:7000"           # Self for the first node
-    listen_address: 127.0.0.1                   # Address for nodes
-    rpc_address: 127.0.0.1                      # Address for clients
-    ```
-    - `cluster_name` helps identify the Cassandra cluster.
-    - `listen_address` is the IP address of the node used by other nodes within the cluster to communicate.
-    - `rpc_address` is the IP address of the node used by the clients to connect to the Cassandra cluster.
-    - In the `seed_provider` the `seed` parameter is the IP address(es) of the seed node(s) in the cluster.
-    - The directory paths are for storage of hints, data, commit log, and saved caches.
-2. Start and enable Cassandra service:
-    ```bash
-    $ sudo systemctl start cassandra.service
-    $ sudo systemctl enable cassandra.service
-    ```
-2. To remove existing data and restart Cassandra, run the commands below:
-    ```bash
-    $ sudo systemctl stop cassandra.service
-    $ sudo rm -rf /var/lib/cassandra/*
-    $ sudo systemctl start cassandra.service
-    $ sudo systemctl status cassandra.service
-    ```
-- By default, Cassandra listens on the following ports:
-    - 7000/tcp (inter-node)
-    - 9042/tcp (client)
-    - 7199
-    - 46315
-
-</details>
-
-
-<!---------- STEP 4: ELASTICSEARCH ---------->
-<details>
-<summary>
-<h3>Step 4: Elasticsearch</h3>
-</summary>
-
-Elasticsearch is a robust data indexing and search engine. It is used by TheHive to manage data indicies efficiently.
-
-#### Installation
-
-1. Add Elasticsearch repository keys and dependency package:
-    ```bash
-    $ wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch |  sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
-    $ sudo apt-get install apt-transport-https
-    ```
-2. Add the DEB repository of Elasticsearch:
-    ```bash
-    $ echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/7.x/apt stable main" |  sudo tee /etc/apt/sources.list.d/elastic-7.x.list
-    ```
-3. Update the package manager and install Elasticsearch package:
-    ```bash
-    $ sudo apt update
-    $ sudo apt install elasticsearch
-    ```
-
-#### Configuration
-
-1. Configure Elasticsearch by editing the `/etc/elasticsearch/elasticsearch.yml` file:
-    ```bash
-    $ sudo nano /etc/elasticsearch/elasticsearch.yml
-    ```
-    - Set the following parameters:
-    ```yml
-    # Cluster
-    cluster.name: thehive-engine
-    http.host: 127.0.0.1
-    http.port: 9201
-    transport.host: 127.0.0.1
-    transport.port: 9301
-    ...
-    # Paths
-    path.logs: "/var/log/elasticsearch"
-    path.data: "/var/lib/elasticsearch"
-    ...
-    thread_pool.search.queue_size: 100000
-    xpack.security.enabled: false
-    script.allowed_types: "inline,stored"
-    ```
-2. Create the file below with the custom JVM options:
-    ```bash
-    nano /etc/elasticsearch/jvm.options.d/jvm.options
-    ```
-    - Set the following parameters:
-    ```yml
-    -Dlog4j2.formatMsgNoLookups=true
-    -Xms2g
-    -Xmx2g
-    ```
-3. Start and enable Elasticsearch service:
-    ```bash
-    $ sudo systemctl start elasticsearch
-    $ sudo systemctl enable elasticsearch
-    $ sudo systemctl status elasticsearch
-    ```
-4. To remove the existing data and restart Elasticsearch service, run the commands below:
-    ```bash
-    $ sudo systemctl stop elasticsearch
-    $ sudo rm -rf /var/lib/elasticsearch/*
-    $ sudo systemctl start elasticsearch
-    $ sudo systemctl status elasticsearch
-    ```
-- Elasticsearch will be listening on the following ports:
-    - 9201 (http)
-    - 9301
-
-</details>
-
-
-<!---------- STEP 5: FILE STORAGE ---------->
-<details>
-<summary>
-<h3>Step 5: File storage</h3>
-</summary>
-
-1. To store files on the local filesystem, start by choosing the dedicated folder (by default `/opt/thp/thehive/files`):
-    ```bash
-    $ sudo mkdir -p /opt/thp/thehive/files
-    ```
-    - This path will be utilized in the configuration of TheHive.
-2. After installing TheHive, ensure the user thehive owns the chosen path for storing files:
-    ```bash
-    $ sudo chown -R thehive:thehive /opt/thp/thehive/files
-    $ ls -lh /opt/thp/thehive/
-    ```
-</details>
-
-
-<!---------- STEP 6: THEHIVE ---------->
-<details>
-<summary>
-<h3>Step 6: TheHive</h3>
-</summary>
-
-TheHive is a scalable Security Incident Response Platform integrated with MISP (Malware Information Sharing Platform) for promptly investigating and addressing security incidents.
-
-#### Installation
-
-1. Add the TheHive repository keys and the repository to the Apt sources list::
-    ```bash
-    $ wget -O- https://archives.strangebee.com/keys/strangebee.gpg | sudo gpg --dearmor -o /usr/share/keyrings/strangebee-archive-keyring.gpg
-    $ echo 'deb [signed-by=/usr/share/keyrings/strangebee-archive-keyring.gpg] https://deb.strangebee.com thehive-5.3 main' | sudo tee -a /etc/apt/sources.list.d/strangebee.list
-    ```
-2. Update the package manager and install the TheHive package:
-    ```bash
-    $ sudo apt update
-    $ sudo apt install thehive
-    ```
-
-#### Configuration
-
-1. Configure TheHive by editing the `/etc/thehive/application.conf` file:
-    ```bash
-    $ sudo nano /etc/thehive/application.conf
-    ```
-    - Set the following parameters:
-    ```yml
-    # Cassandra and Elasticsearch configuration
-    db.janusgraph {
-        storage {
-            backend = cql
-            hostname = ["127.0.0.1"]
-            cql {
-                cluster-name = thehive-db
-                keyspace = thehive
-            }
-        }
-        index.search {
-            backend = elasticsearch
-            hostname = ["127.0.0.1:9201"]
-            index-name = thehive-engine
-    # Attachment storage configuration
-    storage {
-        provider = localfs
-        localfs.location = /opt/thp/thehive/files
-    }
-    # Service configuration
-    application.baseUrl = "http://0.0.0.0:9000"
-    play.http.context = "/"
-    # Additional modules
-    scalligraph.modules += org.thp.thehive.connector.cortex.CortexModule
-    scalligraph.modules += org.thp.thehive.connector.misp.MispModule
-    ```
-2. Ensure thehive user has permissions on the default file storage location:
-    ```bash
-    $ ls -lhd /opt/thp/thehive/files
-    ```
-    - Otherwise change the directory ownership:
-    ```bash
-    $ chown -R thehive:thehive /opt/thp/thehive/files
-    ```
-3. Start and enable TheHive:
-    ```bash
-    $ sudo systemctl start thehive
-    $ sudo systemctl enable thehive
-    $ systemctl status thehive
-    ```
-</details>
-
-
-<!---------- STATUS CHECK ---------->
-<details>
-<summary>
-<h3>Status check</h3>
-</summary>
-
-Check if Cassandra, Elasticsearch, and TheHive services are running:
-```bash
-$ systemctl status cassandra
-$ systemctl status elasricsearch
-$ systemctl status thehive
-```
-**Note:** Any modification on the configuration file of Cassandra, Elasticsearch, or TheHive should follow a reset of the three services with TheHive last.
-
-</details>
-
-
-<!---------- TROUBLESHOOTING ---------->
-<details>
-<summary>
-<h3>Troubleshooting</h3>
-</summary>
-
-1. Check possible issues reported in the Cassandra log file:
-    ```bash
-    $ cat /var/log/cassandra/system.log | grep -E "ERROR|Caused"
-    ```
-2. Check possible issues reported in the Elasticsearch log file:
-    ```bash
-    $ sudo cat /var/log/elasticsearch/<cluster-name>.log | grep -E "ERROR|Caused"
-    ```
-3. Check possible issues reported in the TheHive log file:
-    ```bash
-    $ sudo cat /var/log/thehive/applicatin.log | grep -E "ERROR|Caused"
-    ```
-</details>
-
-
-<!---------- TheHive Create Organization and User Accounts ---------->
-<details>
-<summary>
-<h3>TheHive Create Organization and User Accounts</h3>
-</summary>
-
-Sign in into TheHive.
-
-### Create Organisation
-
-1. Go to **Organisations** and click on the **plus sign** to create one if you already don't have one.
-	1. Fill the fields on **Adding an Organisation**.
-		- **Name:** JAHWS
-		- **Description:** SOC Automation Project
-		- **Tasks sharing rule:** manual
-		- **Observables sharing rule:** manual
-	2. Then, click **Confirma**.
-
-### Create User Accounts
-
-1. On **Organisations**, click on the organization name.
-2. On the organisaton page, under **Users** click on the **plus sign** to add an user.
-	1. Fill the fields on **Adding a User**
-		- **Type:** Normal
-		- **Organisation:** JASHWS
-		- **Login:** user1@jah.com
-		- **Name:** User1
-		- **Profile:** Analyst
-	2. Then, click **Confirm**.
-3. To add a second user, click on the **plus sign** again user **Users**.
-	1. Fill the fields on **Adding a User**
-		- **Type:** Service
-		- **Organisation:** JASHWS
-		- **Login:** shuffle@jah.com
-		- **Name:** User Shuffle
-		- **Profile:** Analyst
-	2. Then, click **Confirm**.
-
-</details>
-
-
----------------------------------------------------------------------------------------------------
-
-
-## Docker Installation on Ubuntu Server
-
-Docker Engine is an open source containerization technology for building and containerizing applications, which acts as a client-server application.
-
-
-<!-- Installation -->
-<details>
-<summary>
-<h3>Installation</h3>
-</summary>
-
-1. Install dependencies:
-	```bash
-	$ $ sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
-	```
-2. Add the Docker repository:
-	```bash
-	$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-	$ echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-	```
-2. Install Docker Community Edition:
-	```bash
-	$ sudo apt update
-	$ sudo apt install docker-ce
-	```
-3. Start and enable Docker service:
-	```bash
-	$ sudo systemctl start docker
-	$ sudo systemctl enable docker
-	```
-4. Check the installation by verifying the Docker version:
-	```bash
-	$ docker --version
-	```
-5. Test Docker by running the "Hello, World!" container:
-	```bash
-	$ sudo docker run hello-world
-	```
-6. (TODO) Permissions:
-
-</details>
-
----------------------------------------------------------------------------------------------------
-
-## (TODO - update to new version)
-## Admyral Installation on Ubuntu Server using Docker
-
-Admyral is an open-source Cybersecurity Automation & Investigation Assistant powered by AI.
-
-
-<!-- Installation -->
-<details>
-<summary>
-<h3>Installation</h3>
-</summary>
-
-1. Clone the repository:
-    ```bash
-    $ git clone https://github.com/Admyral-Security/admyral.git
-    ```
-
-2. Change directory to docker self-hosting:
-    ```bash
-    $ cd admyral/deploy/self-hosting
-    ```
-
-3. Copy and edit the env vars:
-    ```bash
-    $ cp .env.example .env
-    $ nano .env
-    ```
-    - Set the parameters below:
-    ```yaml
-    ADMYRAL_SITE_URL="http://192.168.57.3:3000"
-    ASMYRAL_WORKFLOW_RUNNER_API_URL="http://192.168.57.3:5000"
-    SUPABASE_URL="http://192.168.57.3:8000"
-    ```
-4. Edit the docker-compose.yml file:
-	```bash
-	$ nano docker-compose.yml
-	```
-	- Set the parameters below:
-	```yml
-    services:
-    	workflow-runner:
-    		# Image requested linux/amd64
-    		image: admyralai/workflow-runner:latest
-    		# Use image for linux/amd64 platform
-
-        web:
-            healthcheck:
-                test:
-                    [
-                        ...
-                        # Use IP address instead of domain name
-                        "http://127.0.0.1:3000/health"
-                    ]
-        studio:
-            healthcheck:
-                test:
-                    [
-                        ...
-                        '"require(''http'').get(''http://'' + process.env.HOSTNAME + '':3000/api/profile'', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"'
-					]
-				timeout: 15s
-		storage:
-			healthcheck:
-					[
-						...
-						# Use IP address instead of domain name
-						"http://127.0.0.1:5000/status"
-					]
-	```
-4. Start the services in detached mode, then list all containers:
-    ```bash
-    $ sudo docker compose up -d
-    $ sudo docker ps -a
-    ```
-5. If it fails, restart the containers running the command below:
-    ```bash
-    $ sudo docker compose restart
-    ```
-</details>
-
-
-<!-- Install Admyral using pip -->
-<details>
-<summary>
-<h3>Install Admyral using pip</h3>
-</summary>
-
-### Step 1: Installing and Starting Admyral
-
-1. Install Admyrall using pip and Python 3.12:
-	```bash
-	python3.12 -m pip install admyral
-	```
-2. Start Admyral:
-	```bash
-	admyral up
-	```
-### Step 2: Tool and Secret Setup
-
-</details>
-
-
-<!-- Troubleshooting -->
-<details>
-<summary>
-<h3>Troubleshooting</h3>
-</summary>
-
-1. Install Python 3.12 and pip for python 3.12
-	```BASH
-	sudo apt update && sudo apt upgrade
-	sudo apt install software-properties-common
-	sudo add-apt-repository ppa:deadsnakes/ppa
-	sudo apt update
-	sudo apt install python3.12
-	sudo python3.12 --version
-	curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12
-	python3.12 -m pip --version
-	```
-2. AttributeError: module 'lib' has no attribute 'X509_V_FLAG_NOTIFY_POLICY'. Did you mean: 'X509_V_FLAG_EXPLICIT_POLICY'?
-	- Solution: Upgrade the latest version of PyOpenSSL.
-		```bash
-		python3.12 -m pip install pip --upgrade
-		python3.12 -m pip install pyopenssl --upgrade
-		```
-</details>
-
-
-<!-- References -->
-<details>
-<summary>
-<h3>References</h3>
-</summary>
-
-- GitHub: https://github.com/Admyral-Security/admyral
-- How to contribute: https://github.com/Admyral-Security/admyral/blob/main/CONTRIBUTING.md
-- Cloud Version: https://admyral.dev/login
-- Discord: https://discord.gg/GqbJZT9Hbf
-
-</details>
-
-
----------------------------------------------------------------------------------------------------
 
 
 ## DVWA Installation on Debian
@@ -2161,7 +2225,7 @@ DVWA (Damn Vulnerable Web Application) is a PHP/MySQL web application designed t
 </summary>
 
 1. From the host machine, open your browser and enter the URL `http://192.168.57.4/dvwa/setup.php`.
-2. Click on **Create / Reset Database** at the bottom, then you will be redirected to the login page.
+2. Click on `Create / Reset Database` at the bottom, then you will be redirected to the login page.
 3. At the login page, log in using the credentials created earlier, and everything should be up and running.
 
 </details>
