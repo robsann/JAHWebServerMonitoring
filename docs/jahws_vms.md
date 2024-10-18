@@ -89,7 +89,7 @@ Open `VirtualBox Manager` and click on `New`.
     - Click `Next`.
 3. On `Virtual Hard disk`, set:
     - Select `Create a Virtual Hard Disk Now`
-    - `Disk Size:` 40 GB (or more)
+    - `Disk Size:` 80 GB (or more)
     - Click `Next`.
 4. On `Summary`:
     - Review and click `Finish`.
