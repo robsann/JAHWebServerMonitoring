@@ -1990,16 +1990,16 @@ Configure `Wazuh` to connect to `Admyral`:
 		- `Username:` admin@admin.test
 		- `Password:` admin
 		- Enter new password
-3. To reset password run the command below:
-	```bash
-	$ /var/www/MISP/app/Console/cake user change_pw [email] [password]
-	```
-4. Create an organization:
-	1. Select `Administration` > `Add Organisations`.
+	2. To reset password run the command below:
+		```bash
+		$ /var/www/MISP/app/Console/cake user change_pw [email] [password]
+		```
+3. Create an organization:
+	1. Go to `MISP GUI` > `Administration` > `Add Organisations`.
 	2. Enter `ORG name` into `Organisation Identifier`.
 	3. Click on `Generate UUID`.
 	4. Click on `Submit` at the bottom.
-5. Click on `View Organisation` on the left menu to visualize the organization information.
+4. Click on `View Organisation` on the left menu to visualize the organization information.
 	1. Under `Users index`, click on the `edit` icon under `Actions`.
 	2. Edit your email address.
 	3. Generate the PGP key and paste it on the `PGP key` box.
@@ -2022,15 +2022,29 @@ Configure `Wazuh` to connect to `Admyral`:
 			```
 	4. Check the `Terms accepted` box.
 	5. Confirm your password and click on `Edit user`.
-6. Import the defaults feed-metadata from the MISP github repo:
-	1. Go to `https://github.com/MISP/MISP/blob/2.5/app/files/feed-metadata/defaults.json`
-	2. Copy the content of the `defaults.json` file.
-	3. Go to the local MISP UI, on the top menu click on `Sync Actions` > `Feeds`.
-	4. On the left menu, click on `Import Feeds from JSON`.
-	5. Paste the content of `defaults.json` on the JSON box and click on `Add`.
-	6. Enable the feeds by selecting them and clicking on `Enable selected`.
-7. Create a cronjob to fetch and store all feed data:
-	1. Go to the local MISP UI, on the top menu click on `Administration` > `List Auth Keys`.
+5. Import the defaults feed-metadata from the MISP github repo:
+	1. Import method 1:
+		1. Go to `MISP GUI` > `Sync Actions` > `Feeds`.
+		2. Then click on `Load default feed metadata`.
+	2. Import method 2:
+		1. Go to `https://github.com/MISP/MISP/blob/2.5/app/files/feed-metadata/defaults.json`
+		2. Copy the content of the `defaults.json` file.
+		3. Go to `MISP GUI` > `Sync Actions` > `Feeds`.
+		4. On the left menu, click on `Import Feeds from JSON`.
+		5. Paste the content of `defaults.json` on the JSON box and click on `Add`.
+	3. Enable the feeds by selecting them and clicking on `Enable selected`.
+	4. Enable caching by selecting the feeds and clicking on `Enable caching for selected`.
+	5. Fetch feed data by clicking on `Fetch and store all feed data`.
+6. (Schedule Tasks Method 1) Create an scheduled task using the MISP UI:
+	1. Got to `MISP GUI` > `Administration` > `Scheduled Tasks`.
+	2. On the entry `Id 5 (Initiates the pull of all feeds)`, double-click on the `Frequency (h)` number and set to `24`.
+	3. Then click on `Update all`.
+	4. PullAll:
+		```bash
+		$ /var/www/MISP/app/Console/cake Server pullAll [user_id] [full|update]
+		```
+7. (Schedule Tasks Method 2) Create a cronjob to fetch and store all feed data:
+	1. Go to `MISP GUI` > `Administration` > `List Auth Keys`.
 	2. Click on `Add authentication key`.
 	3. Select the `User`, on `Comment` type CRONJOB, then click on `Submit`.
 	4. Copy the key and click on `I have noted down my key, take me back now`.
@@ -2052,16 +2066,88 @@ Configure `Wazuh` to connect to `Admyral`:
 			/usr/bin/curl -XPOST --insecure --header "Authorization: <MISP_API_KEY>" --header "Accept: application/json" --header "Content-Type: application/json" https://<MISP_IP_ADDR>/feeds/fetchFromAllFeeds
 			```
 			- It should return `Pull queued for background execution.` as result.
-		5. On the local MISP UI, go to `Administration` > `Jobs` to see the data being fetched.
-8. Monitor resource usage:
-	1. Monitor CPU and Memory:
-		```bash
-		$ htop
+		5. Go to `MISP GUI` > `Administration` > `Jobs` to see the data being fetched.
+8. Restart MISP components:
+	```bash
+	$ sudo systemctl restart mariadb
+	$ sudo systemctl restart redis
+	$ sudo systemctl restart apache2
+	$ sudo systemctl restart misp-workers
+	```
+9. Update MISP version:
+	1. Go to `MISP GUI` > `Administration` > `Server Settings` > `Diagnostics`.
+	2. Then click on `Update MISP`.
+10. Troubleshooting:
+	1. Log files for troubleshooting:
+		1. MISP log files:
+			```yml
+			/var/www/MISP/app/tmp/logs/debug.log						# MISP debug and error logs
+			/var/www/MISP/app/tmp/logs/error.log						# MISP error logs
+			/var/www/MISP/app/tmp/logs/mispzmq.log						# ZeroMQ log messages
+			/var/www/MISP/app/tmp/logs/mispzmq.error.log				# ZeroMQ errors
+			/var/www/MISP/app/tmp/logs/resque-xxxx-xx-xx.log			# Resque jobs status
+			/var/www/MISP/app/tmp/logs/resque-scheduler-xxxx-xx-xx.log	# Resque Scheduled jobs info
+			/var/www/MISP/app/tmp/logs/resque-scheduler-error.log		# Resque Scheduled jobs errors
+			/var/www/MISP/app/tmp/logs/resque-worker-error.log			# Resque worker errors
+			```
+			- ZeroMQ is a open-source, asynchronous messaging library.
+			- Resque is a Redis-backed Ruby library for creating background jobs.
+		2. Apache2 log files:
+			```yml
+			/var/log/apache2/access.log					# Log all requests made to Apache
+			/var/log/apache2/error.log					# Store error/warnings generated by Apache
+			/var/log/apache2/misp.local_access.log		# Log all requests made to misp.local
+			/var/log/apache2/misp.local_error.log		# Store errors related to misp.local
+			/var/log/apache2/other_vhosts_access.log	# Log access requests to not default host
+			```
+		3. MySQL log files:
+			```yml
+			/var/log/mysql/error.log		# Store errors/info related to MySQL
+			/var/log/mysql/mysql.log		# Log all activities and events related to MySQL
+			```
+		4. Redis log files:
+			```yml
+			/var/log/redis/redis-server.log	# Store log messages generated by Redis server
+			```
+	2. Service sockets (IP:Port):
+		```yml
+		|    Service    |    Socket
+		--------------------------------
+		| apache2		|		  *:80
+		| apache2		|		  *:443
+		| mariadbd		| 127.0.0.1:3306
+		| redis-server	| 127.0.0.1:6379
+		| redis-server	|	  [::1]:6379
 		```
-	2. Monitor disk performance:
-		```bash
-		$ sudo iostat -x -d 5 2
-		```
+	3. (Problem) Jobs get stuck in Queued Stage:
+		1. Clean model cache: go to `MISP GUI` > `Administration` > `Server Settings` > `Diagnostics` > `Clean model cache`, then click on `Clean cache`.
+		2. Restart workers: go to `MISP GUI` > `Administration` > `Server Settings` > `Workers`, then click on `Restart dead workers` at the bottom.
+	4. (Problem) General error: 2006 MySQL server has gone away
+		1. Increase the server timeout and increase the maximum allowed packet size:
+			- Edit the MySQL server's config file:
+			```bash
+			sudo nano /etc/mysql/mariadb.cnf
+			```
+			- Add or edit the lines below:
+			```yml
+			[mysqld]
+			wait_timeout = 28800
+			interactive_timeout = 28800
+
+			[mysql]
+			max_allowed_packet = 64M
+			```
+		2. To test MariaDB config file, first stop MariaDB service, next check for any instances of MySQL running and terminate them if found, finally run `mysqld` as the `mysql` user:
+			```bash
+			$ sudo systemctl stop mariadb
+			$ ps -ef
+			$ sudo -u mysql bash -c "mysqld"
+			```
+		3. Restart MariaDB:
+			```bash
+			sudo systemctl restart mariadb
+			```
+
 
 
 </details>
