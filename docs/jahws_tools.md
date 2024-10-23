@@ -2126,7 +2126,7 @@ Configure `Wazuh` to connect to `Admyral`:
 		1. Increase the server timeout and increase the maximum allowed packet size:
 			- Edit the MySQL server's config file:
 			```bash
-			sudo nano /etc/mysql/mariadb.cnf
+			$ sudo nano /etc/mysql/mariadb.cnf
 			```
 			- Add or edit the lines below:
 			```yml
@@ -2145,7 +2145,7 @@ Configure `Wazuh` to connect to `Admyral`:
 			```
 		3. Restart MariaDB:
 			```bash
-			sudo systemctl restart mariadb
+			$ sudo systemctl restart mariadb
 			```
 
 
