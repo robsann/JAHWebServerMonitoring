@@ -2063,7 +2063,7 @@ Configure `Wazuh` to connect to `Admyral`:
 			```
 		4. To execute the cron job command now, run the command below using your `MISP_API_KEY` and `MISP_IP_ADDR`:
 			```bash
-			/usr/bin/curl -XPOST --insecure --header "Authorization: <MISP_API_KEY>" --header "Accept: application/json" --header "Content-Type: application/json" https://<MISP_IP_ADDR>/feeds/fetchFromAllFeeds
+			$ /usr/bin/curl -XPOST --insecure --header "Authorization: <MISP_API_KEY>" --header "Accept: application/json" --header "Content-Type: application/json" https://<MISP_IP_ADDR>/feeds/fetchFromAllFeeds
 			```
 			- It should return `Pull queued for background execution.` as result.
 		5. Go to `MISP GUI` > `Administration` > `Jobs` to see the data being fetched.
