@@ -4,7 +4,7 @@ This homelab provides a virtual environment to practice with tools commonly used
 
 ## Outline
 
-1. [Diagrams](#diagram)
+1. [Diagrams](#diagrams)
 2. [Installation](#installation)
 
 ## Diagrams
