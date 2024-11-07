@@ -220,6 +220,7 @@ After rebooting `log in` with your credentials.
         $ dos2unix -f .zshrc
         $ source .zshrc
         ```
+        - **Note:** `^M` represents the carriage return (CR) character commonly used in Windows-style text files to indicate the end of a line.
     6. Change the default login shell (use `echo $SHELL` to display the current login shell):
         ```bash
         $ chsh -s /bin/zsh
